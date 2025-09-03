@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Quản Lý Mua Sắm v2.0 - 4 Khách Sạn</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <meta name="description" content="Ứng dụng quản lý mua sắm cho 4 khách sạn">
+    <meta name="theme-color" content="#2c5aa0">
+</head>
+<body>
+    <!-- Loading indicator -->
+    <div id="loadingIndicator" class="loading">
+        <div class="loading-spinner"></div>
+        <p>Đang tải...</p>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏨 Quản Lý Mua Sắm v2.0</h1>
+            <p>Ứng dụng dành cho 4 khách sạn</p>
+            <button id="menuToggle" class="menu-toggle">☰</button>
+        </div>
+
+        <!-- Step 1: Date Selection -->
+        <div class="selection-step" id="dateStep">
+            <div class="step-header">
+                <span class="step-number">1</span>
+                <h2>📅 Chọn ngày mua sắm</h2>
+            </div>
+            <div class="date-input-wrapper">
+                <input type="date" id="selectedDate" class="date-input" required>
+                <button id="todayBtn" class="btn btn-secondary">Hôm nay</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Hotel Selection -->
+        <div class="selection-step" id="hotelStep">
+            <div class="step-header">
+                <span class="step-number">2</span>
+                <h2>🏨 Chọn khách sạn</h2>
+            </div>
+            <div class="hotel-grid">
+                <button class="hotel-card" data-hotel="36LS">
+                    <span class="hotel-icon">🏨</span>
+                    <span class="hotel-name">36LS</span>
+                </button>
+                <button class="hotel-card" data-hotel="16TX">
+                    <span class="hotel-icon">🏩</span>
+                    <span class="hotel-name">16TX</span>
+                </button>
+                <button class="hotel-card" data-hotel="55HT">
+                    <span class="hotel-icon">🏪</span>
+                    <span class="hotel-name">55HT</span>
+                </button>
+                <button class="hotel-card" data-hotel="49HG">
+                    <span class="hotel-icon">🏬</span>
+                    <span class="hotel-name">49HG</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Section Selection -->
+        <div class="selection-step" id="sectionStep">
+            <div class="step-header">
+                <span class="step-number">3</span>
+                <h2>📦 Chọn danh mục</h2>
+            </div>
+            <div class="section-grid">
+                <button class="section-card" data-section="thit">
+                    <span class="section-icon">🥩</span>
+                    <span class="section-name">Thịt</span>
+                </button>
+                <button class="section-card" data-section="rau">
+                    <span class="section-icon">🥬</span>
+                    <span class="section-name">Rau</span>
+                </button>
+                <button class="section-card" data-section="dokho">
+                    <span class="section-icon">🌾</span>
+                    <span class="section-name">Đồ khô</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Current Selection Summary -->
+        <div class="current-selection" id="currentSelection" style="display: none;">
+            <div class="selection-summary">
+                <span id="summaryDate" class="summary-item">📅</span>
+                <span id="summaryHotel" class="summary-item">🏨</span>
+                <span id="summarySection" class="summary-item">📦</span>
+                <button id="changeSelectionBtn" class="btn btn-link">Thay đổi</button>
+            </div>
+        </div>
+
+        <!-- Item Entry Form -->
+        <div class="item-entry" id="itemEntry" style="display: none;">
+            <div class="form-header">
+                <h3>➕ Thêm sản phẩm mới</h3>
+            </div>
+            
+            <form id="itemForm" class="item-form">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="itemName">Tên sản phẩm *</label>
+                        <input type="text" id="itemName" class="form-input" placeholder="Nhập tên sản phẩm..." required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="itemPool">Chọn từ danh sách</label>
+                        <select id="itemPool" class="form-select">
+                            <option value="">-- Chọn sản phẩm có sẵn --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantity">Số lượng *</label>
+                        <input type="number" id="quantity" class="form-input" placeholder="1" step="0.1" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit">Đơn vị *</label>
+                        <select id="unit" class="form-select" required>
+                            <option value="kg">kg</option>
+                            <option value="gram">gram</option>
+                            <option value="lít">lít</option>
+                            <option value="chai">chai</option>
+                            <option value="gói">gói</option>
+                            <option value="cái">cái</option>
+                            <option value="thùng">thùng</option>
+                            <option value="hộp">hộp</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="buyPrice">Giá mua (₫)</label>
+                        <input type="number" id="buyPrice" class="form-input" placeholder="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="sellPrice">Giá bán (₫)</label>
+                        <input type="number" id="sellPrice" class="form-input" placeholder="0" min="0">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        ➕ Thêm sản phẩm
+                    </button>
+                    <button type="button" id="clearFormBtn" class="btn btn-secondary">
+                        🗑️ Xóa form
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Items List -->
+        <div class="items-list" id="itemsList" style="display: none;">
+            <div class="list-header">
+                <h3 id="listTitle">📝 Danh sách sản phẩm</h3>
+                <div class="list-actions">
+                    <button id="markAllDoneBtn" class="btn btn-sm btn-success">✓ Đánh dấu tất cả</button>
+                    <button id="clearDoneBtn" class="btn btn-sm btn-warning">🗑️ Xóa đã hoàn thành</button>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="search-section">
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Tìm kiếm sản phẩm...">
+                <select id="statusFilter" class="filter-select">
+                    <option value="all">Tất cả</option>
+                    <option value="pending">Chưa hoàn thành</option>
+                    <option value="done">Đã hoàn thành</option>
+                </select>
+            </div>
+
+            <!-- Items Table -->
+            <div class="table-container">
+                <table class="items-table" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th class="col-checkbox">✓</th>
+                            <th class="col-name">Tên sản phẩm</th>
+                            <th class="col-unit">Đơn vị</th>
+                            <th class="col-price">Giá mua</th>
+                            <th class="col-price">Giá bán</th>
+                            <th class="col-total">Tổng mua</th>
+                            <th class="col-total">Tổng bán</th>
+                            <th class="col-actions">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <!-- Items will be populated here -->
+                    </tbody>
+                    <tfoot id="itemsTableFooter" style="display: none;">
+                        <tr class="totals-row">
+                            <td colspan="5" class="totals-label">
+                                <strong>📊 Tổng cộng:</strong>
+                            </td>
+                            <td class="totals-buy">
+                                <strong id="totalBuyAmount">0₫</strong>
+                            </td>
+                            <td class="totals-sell">
+                                <strong id="totalSellAmount">0₫</strong>
+                            </td>
+                            <td class="totals-actions">
+                                <span id="itemCount">0 sản phẩm</span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">📦</div>
+                <h4>Chưa có sản phẩm nào</h4>
+                <p>Hãy thêm sản phẩm đầu tiên vào danh sách!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="menu-content">
+            <div class="menu-header">
+                <h3>Menu</h3>
+                <button id="menuClose" class="menu-close">&times;</button>
+            </div>
+            <div class="menu-items">
+                <button class="menu-item" data-action="export">
+                    <span>📥</span> Xuất dữ liệu
+                </button>
+                <button class="menu-item" data-action="import">
+                    <span>📤</span> Nhập dữ liệu
+                </button>
+                <button class="menu-item" data-action="print">
+                    <span>🖨️</span> In báo cáo
+                </button>
+                <button class="menu-item" data-action="help">
+                    <span>❓</span> Hướng dẫn
+                </button>
+                <button class="menu-item" data-action="about">
+                    <span>ℹ️</span> Thông tin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fab" style="display: none;" title="Thêm sản phẩm nhanh">
+        ➕
+    </button>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h3 id="confirmTitle">Xác nhận</h3>
+            <p id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+            <div class="modal-actions">
+                <button id="confirmYes" class="btn btn-primary">Có</button>
+                <button id="confirmNo" class="btn btn-secondary">Không</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
