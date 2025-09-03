@@ -417,10 +417,6 @@ body {
     gap: 12px;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: var(--sticky-nav-height, 180px);
-    z-index: 999;
-    transition: top 0.3s ease;
 }
 
 .search-input {
@@ -640,11 +636,9 @@ body {
 .totals-buy,
 .totals-sell {
     font-size: 18px;
-    text-align: right;
 }
 
 .totals-actions {
-    text-align: center;
     font-size: 14px;
     opacity: 0.9;
 }

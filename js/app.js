@@ -594,16 +594,18 @@ class ShoppingApp {
         const buyTotal = Utils.calculateTotal(item.quantity, item.buyPrice);
         const sellTotal = Utils.calculateTotal(item.quantity, item.sellPrice);
 
-        // Format calculation display
-        const buyPriceDisplay = item.buyPrice ? Utils.formatCurrency(item.buyPrice) : '0₫';
-        const sellPriceDisplay = item.sellPrice ? Utils.formatCurrency(item.sellPrice) : '0₫';
+        // Format calculation display in thousands
+        const buyPriceDisplay = item.buyPrice ? Utils.formatPriceInThousands(item.buyPrice) : '0';
+        const sellPriceDisplay = item.sellPrice ? Utils.formatPriceInThousands(item.sellPrice) : '0';
+        const buyTotalDisplay = Utils.formatPriceInThousands(buyTotal);
+        const sellTotalDisplay = Utils.formatPriceInThousands(sellTotal);
         
         const buyCalculation = item.buyPrice ? 
-            `${buyPriceDisplay} × ${item.quantity}${item.unit} = ${Utils.formatCurrency(buyTotal)}` : 
+            `${buyPriceDisplay} × ${item.quantity}${item.unit} = ${buyTotalDisplay}` : 
             `Chưa có giá`;
         
         const sellCalculation = item.sellPrice ? 
-            `${sellPriceDisplay} × ${item.quantity}${item.unit} = ${Utils.formatCurrency(sellTotal)}` : 
+            `${sellPriceDisplay} × ${item.quantity}${item.unit} = ${sellTotalDisplay}` : 
             `Chưa có giá`;
 
         row.innerHTML = `
@@ -761,11 +763,11 @@ class ShoppingApp {
         const stats = Utils.calculateStats(items);
 
         if (this.elements.totalBuyAmount) {
-            this.elements.totalBuyAmount.textContent = Utils.formatCurrency(stats.totalBuyAmount);
+            this.elements.totalBuyAmount.textContent = Utils.formatPriceInThousands(stats.totalBuyAmount);
         }
 
         if (this.elements.totalSellAmount) {
-            this.elements.totalSellAmount.textContent = Utils.formatCurrency(stats.totalSellAmount);
+            this.elements.totalSellAmount.textContent = Utils.formatPriceInThousands(stats.totalSellAmount);
         }
 
         if (this.elements.itemCount) {

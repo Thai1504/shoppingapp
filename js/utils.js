@@ -24,6 +24,20 @@ const Utils = {
     },
 
     /**
+     * Format price in thousands (e.g., 160000 -> "160")
+     * @param {number} amount - Amount to format
+     * @returns {string} Formatted thousands string
+     */
+    formatPriceInThousands(amount) {
+        if (amount === null || amount === undefined || isNaN(amount)) {
+            return '0';
+        }
+        
+        const thousands = Math.round(amount / 1000);
+        return thousands.toString();
+    },
+
+    /**
      * Format date as Vietnamese format
      * @param {string|Date} date - Date to format
      * @returns {string} Formatted date string
