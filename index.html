@@ -74,12 +74,11 @@
                     <thead>
                         <tr>
                             <th class="col-checkbox">✓</th>
-                            <th class="col-name">Tên sản phẩm</th>
-                            <th class="col-unit">Đơn vị</th>
-                            <th class="col-price">Giá mua</th>
-                            <th class="col-price">Giá bán</th>
-                            <th class="col-total">Tổng mua</th>
-                            <th class="col-total">Tổng bán</th>
+                            <th class="col-name-unit">Sản phẩm</th>
+                            <th class="col-price edit-mode-only" style="display: none;">Giá mua</th>
+                            <th class="col-price edit-mode-only" style="display: none;">Giá bán</th>
+                            <th class="col-total edit-mode-only" style="display: none;">Tổng mua</th>
+                            <th class="col-total edit-mode-only" style="display: none;">Tổng bán</th>
                             <th class="col-actions">Thao tác</th>
                         </tr>
                     </thead>
@@ -88,17 +87,26 @@
                     </tbody>
                     <tfoot id="itemsTableFooter" style="display: none;">
                         <tr class="totals-row">
-                            <td colspan="5" class="totals-label">
-                                <strong>📊 Tổng cộng:</strong>
+                            <td class="totals-label">
+                                <strong>📊</strong>
                             </td>
-                            <td class="totals-buy">
+                            <td class="totals-summary">
+                                <strong id="itemCount">0 sản phẩm</strong>
+                            </td>
+                            <td class="totals-buy edit-mode-only" style="display: none;">
                                 <strong id="totalBuyAmount">0₫</strong>
                             </td>
-                            <td class="totals-sell">
+                            <td class="totals-sell edit-mode-only" style="display: none;">
                                 <strong id="totalSellAmount">0₫</strong>
                             </td>
+                            <td class="totals-buy edit-mode-only" style="display: none;">
+                                <strong>Tổng mua</strong>
+                            </td>
+                            <td class="totals-sell edit-mode-only" style="display: none;">
+                                <strong>Tổng bán</strong>
+                            </td>
                             <td class="totals-actions">
-                                <span id="itemCount">0 sản phẩm</span>
+                                <!-- Actions space -->
                             </td>
                         </tr>
                     </tfoot>

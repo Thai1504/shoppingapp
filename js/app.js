@@ -600,33 +600,36 @@ class ShoppingApp {
                        ${item.isDone ? 'checked' : ''} 
                        onchange="app.toggleItemCompletion('${item.id}')">
             </td>
-            <td class="col-name">
-                <strong>${Utils.sanitizeHtml(item.name)}</strong>
+            <td class="col-name-unit">
+                <div class="item-name">${Utils.sanitizeHtml(item.name)}</div>
+                <div class="item-quantity">x${item.quantity} ${item.unit}</div>
             </td>
-            <td class="col-unit">
-                ${item.quantity} ${item.unit}
-            </td>
-            <td class="col-price">
+            <td class="col-price edit-mode-only" style="display: none;">
                 <input type="number" class="price-input" 
                        value="${item.buyPrice || ''}" 
                        placeholder="0"
                        onchange="app.updateItemPrice('${item.id}', 'buyPrice', this.value)"
                        min="0">
             </td>
-            <td class="col-price">
+            <td class="col-price edit-mode-only" style="display: none;">
                 <input type="number" class="price-input" 
                        value="${item.sellPrice || ''}" 
                        placeholder="0"
                        onchange="app.updateItemPrice('${item.id}', 'sellPrice', this.value)"
                        min="0">
             </td>
-            <td class="col-total">
+            <td class="col-total edit-mode-only" style="display: none;">
                 ${Utils.formatCurrency(buyTotal)}
             </td>
-            <td class="col-total">
+            <td class="col-total edit-mode-only" style="display: none;">
                 ${Utils.formatCurrency(sellTotal)}
             </td>
             <td class="col-actions">
+                <button class="btn btn-edit btn-sm" 
+                        onclick="app.toggleEditMode('${item.id}')"
+                        title="Chỉnh sửa">
+                    ✏️
+                </button>
                 <button class="btn btn-danger btn-sm" 
                         onclick="app.deleteItem('${item.id}')"
                         title="Xóa sản phẩm">
@@ -678,6 +681,32 @@ class ShoppingApp {
         } catch (error) {
             console.error('Error updating item price:', error);
             Utils.showToast('Lỗi khi cập nhật giá', 'error');
+        }
+    }
+
+    /**
+     * Toggle edit mode for the table
+     */
+    toggleEditMode(itemId = null) {
+        const table = document.getElementById('itemsTable');
+        if (!table) return;
+
+        const isInEditMode = table.classList.contains('edit-mode');
+        
+        if (isInEditMode) {
+            // Exit edit mode
+            table.classList.remove('edit-mode');
+            const editColumns = table.querySelectorAll('.edit-mode-only');
+            editColumns.forEach(col => col.style.display = 'none');
+            
+            Utils.showToast('Đã thoát chế độ chỉnh sửa', 'info');
+        } else {
+            // Enter edit mode
+            table.classList.add('edit-mode');
+            const editColumns = table.querySelectorAll('.edit-mode-only');
+            editColumns.forEach(col => col.style.display = '');
+            
+            Utils.showToast('Đã bật chế độ chỉnh sửa giá', 'info');
         }
     }
 
