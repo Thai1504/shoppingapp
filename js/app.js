@@ -594,6 +594,18 @@ class ShoppingApp {
         const buyTotal = Utils.calculateTotal(item.quantity, item.buyPrice);
         const sellTotal = Utils.calculateTotal(item.quantity, item.sellPrice);
 
+        // Format calculation display
+        const buyPriceDisplay = item.buyPrice ? Utils.formatCurrency(item.buyPrice) : '0₫';
+        const sellPriceDisplay = item.sellPrice ? Utils.formatCurrency(item.sellPrice) : '0₫';
+        
+        const buyCalculation = item.buyPrice ? 
+            `${buyPriceDisplay} × ${item.quantity}${item.unit} = ${Utils.formatCurrency(buyTotal)}` : 
+            `Chưa có giá`;
+        
+        const sellCalculation = item.sellPrice ? 
+            `${sellPriceDisplay} × ${item.quantity}${item.unit} = ${Utils.formatCurrency(sellTotal)}` : 
+            `Chưa có giá`;
+
         row.innerHTML = `
             <td class="col-checkbox">
                 <input type="checkbox" class="item-checkbox" 
@@ -618,11 +630,11 @@ class ShoppingApp {
                        onchange="app.updateItemPrice('${item.id}', 'sellPrice', this.value)"
                        min="0">
             </td>
-            <td class="col-total edit-mode-only" style="display: none;">
-                ${Utils.formatCurrency(buyTotal)}
+            <td class="col-total">
+                <div class="total-calculation">${buyCalculation}</div>
             </td>
-            <td class="col-total edit-mode-only" style="display: none;">
-                ${Utils.formatCurrency(sellTotal)}
+            <td class="col-total">
+                <div class="total-calculation">${sellCalculation}</div>
             </td>
             <td class="col-actions">
                 <button class="btn btn-edit btn-sm" 
@@ -685,7 +697,7 @@ class ShoppingApp {
     }
 
     /**
-     * Toggle edit mode for the table
+     * Toggle edit mode for the table (only affects price input columns)
      */
     toggleEditMode(itemId = null) {
         const table = document.getElementById('itemsTable');
@@ -694,17 +706,17 @@ class ShoppingApp {
         const isInEditMode = table.classList.contains('edit-mode');
         
         if (isInEditMode) {
-            // Exit edit mode
+            // Exit edit mode - hide only price input columns
             table.classList.remove('edit-mode');
-            const editColumns = table.querySelectorAll('.edit-mode-only');
-            editColumns.forEach(col => col.style.display = 'none');
+            const priceColumns = table.querySelectorAll('.col-price.edit-mode-only, .totals-price.edit-mode-only');
+            priceColumns.forEach(col => col.style.display = 'none');
             
-            Utils.showToast('Đã thoát chế độ chỉnh sửa', 'info');
+            Utils.showToast('Đã thoát chế độ chỉnh sửa giá', 'info');
         } else {
-            // Enter edit mode
+            // Enter edit mode - show only price input columns
             table.classList.add('edit-mode');
-            const editColumns = table.querySelectorAll('.edit-mode-only');
-            editColumns.forEach(col => col.style.display = '');
+            const priceColumns = table.querySelectorAll('.col-price.edit-mode-only, .totals-price.edit-mode-only');
+            priceColumns.forEach(col => col.style.display = '');
             
             Utils.showToast('Đã bật chế độ chỉnh sửa giá', 'info');
         }
