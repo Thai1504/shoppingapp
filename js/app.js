@@ -82,8 +82,8 @@ class ShoppingApp {
         this.elements.clearFormBtn = document.getElementById('clearFormBtn');
 
         // Selection elements
-        this.elements.hotelCards = document.querySelectorAll('.hotel-card');
-        this.elements.sectionCards = document.querySelectorAll('.section-card');
+        this.elements.hotelSelect = document.getElementById('hotelSelect');
+        this.elements.sectionTabs = document.querySelectorAll('.section-tab');
 
         // Summary elements
         this.elements.summaryDate = document.getElementById('summaryDate');
@@ -143,23 +143,23 @@ class ShoppingApp {
         }
 
         // Hotel selection
-        this.elements.hotelCards.forEach(card => {
+        if (this.elements.hotelSelect) {
             this.cleanupFunctions.push(
                 Utils.addEventListenerWithCleanup(
-                    card, 
-                    'click', 
-                    () => this.handleHotelSelect(card.dataset.hotel)
+                    this.elements.hotelSelect, 
+                    'change', 
+                    (e) => this.handleHotelSelect(e.target.value)
                 )
             );
-        });
+        }
 
         // Section selection
-        this.elements.sectionCards.forEach(card => {
+        this.elements.sectionTabs.forEach(tab => {
             this.cleanupFunctions.push(
                 Utils.addEventListenerWithCleanup(
-                    card, 
+                    tab, 
                     'click', 
-                    () => this.handleSectionSelect(card.dataset.section)
+                    () => this.handleSectionSelect(tab.dataset.section)
                 )
             );
         });
@@ -361,13 +361,17 @@ class ShoppingApp {
     handleHotelSelect(hotel) {
         if (!this.currentState.selectedDate) {
             Utils.showToast('Vui lòng chọn ngày trước', 'warning');
+            if (this.elements.hotelSelect) {
+                this.elements.hotelSelect.value = '';
+            }
             return;
         }
+
+        if (!hotel) return;
 
         this.currentState.selectedHotel = hotel;
         
         // Update UI
-        this.updateHotelCards();
         this.updateSelectionSummary();
         this.enableStep('section');
         
@@ -389,7 +393,7 @@ class ShoppingApp {
         this.currentState.selectedSection = section;
         
         // Update UI
-        this.updateSectionCards();
+        this.updateSectionTabs();
         this.updateSelectionSummary();
         this.loadItemPool(section);
         this.loadCurrentItems();
@@ -506,7 +510,7 @@ class ShoppingApp {
         }
 
         const formData = this.getFormData();
-        const validation = Utils.validateForm(formData, ['itemName', 'quantity', 'unit']);
+        const validation = Utils.validateForm(formData, ['name', 'quantity', 'unit']);
 
         if (!validation.isValid) {
             Utils.showToast(validation.errors[0], 'error');
@@ -536,7 +540,7 @@ class ShoppingApp {
      */
     getFormData() {
         return {
-            itemName: this.elements.itemName?.value.trim() || '',
+            name: this.elements.itemName?.value.trim() || '',
             quantity: this.elements.quantity?.value || '',
             unit: this.elements.unit?.value || 'kg',
             buyPrice: this.elements.buyPrice?.value || '',
@@ -553,6 +557,10 @@ class ShoppingApp {
         }
         if (this.elements.itemPool) {
             this.elements.itemPool.value = '';
+        }
+        // Set default quantity to 1
+        if (this.elements.quantity) {
+            this.elements.quantity.value = '1';
         }
         if (this.elements.itemName) {
             this.elements.itemName.focus();
@@ -961,8 +969,8 @@ class ShoppingApp {
 
         // Reset UI
         if (this.elements.selectedDate) this.elements.selectedDate.value = '';
-        this.updateHotelCards();
-        this.updateSectionCards();
+        if (this.elements.hotelSelect) this.elements.hotelSelect.value = '';
+        this.updateSectionTabs();
         this.clearForm();
         
         // Show selection steps
@@ -974,27 +982,14 @@ class ShoppingApp {
     }
 
     /**
-     * Update hotel cards UI
+     * Update section tabs UI
      */
-    updateHotelCards() {
-        this.elements.hotelCards.forEach(card => {
-            if (card.dataset.hotel === this.currentState.selectedHotel) {
-                card.classList.add('active');
+    updateSectionTabs() {
+        this.elements.sectionTabs.forEach(tab => {
+            if (tab.dataset.section === this.currentState.selectedSection) {
+                tab.classList.add('active');
             } else {
-                card.classList.remove('active');
-            }
-        });
-    }
-
-    /**
-     * Update section cards UI
-     */
-    updateSectionCards() {
-        this.elements.sectionCards.forEach(card => {
-            if (card.dataset.section === this.currentState.selectedSection) {
-                card.classList.add('active');
-            } else {
-                card.classList.remove('active');
+                tab.classList.remove('active');
             }
         });
     }

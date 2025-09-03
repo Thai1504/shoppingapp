@@ -195,88 +195,86 @@ body {
     box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.2);
 }
 
-/* Hotel Grid */
-.hotel-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-}
-
-.hotel-card {
-    background: var(--bg-color);
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: 20px;
-    cursor: pointer;
-    transition: var(--transition);
+/* Hotel Dropdown */
+.hotel-dropdown-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    min-height: 100px; /* Touch-friendly size */
-    font-size: 16px;
+    gap: 8px;
+}
+
+.hotel-dropdown {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 18px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    min-height: 52px;
+    transition: var(--transition);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'><path d='m6 9 6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 20px;
+    padding-right: 48px;
     font-weight: 600;
 }
 
-.hotel-card:hover,
-.hotel-card:focus {
+.hotel-dropdown:focus {
+    outline: none;
     border-color: var(--primary-color);
-    background: rgba(44, 90, 160, 0.05);
-    transform: translateY(-2px);
+    box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.2);
 }
 
-.hotel-card.active {
-    border-color: var(--primary-color);
-    background: var(--primary-color);
-    color: white;
-}
-
-.hotel-icon {
-    font-size: 28px;
-}
-
-.hotel-name {
-    font-weight: 700;
-    font-size: 18px;
-}
-
-/* Section Grid */
-.section-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-}
-
-.section-card {
-    background: var(--bg-color);
-    border: 2px solid var(--border-color);
+/* Section Tabs */
+.section-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--secondary-color);
+    padding: 4px;
     border-radius: var(--border-radius);
-    padding: 20px;
+    overflow-x: auto;
+}
+
+.section-tab {
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    padding: 12px 16px;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
-    gap: 16px;
-    min-height: 70px; /* Touch-friendly height */
-    font-size: 18px;
+    gap: 8px;
+    min-height: 48px;
+    font-size: 16px;
     font-weight: 600;
+    color: var(--text-color);
+    flex: 1;
+    justify-content: center;
+    white-space: nowrap;
 }
 
-.section-card:hover,
-.section-card:focus {
-    border-color: var(--info-color);
-    background: rgba(23, 162, 184, 0.05);
-    transform: translateY(-2px);
+.section-tab:hover,
+.section-tab:focus {
+    background: rgba(23, 162, 184, 0.1);
 }
 
-.section-card.active {
-    border-color: var(--info-color);
+.section-tab.active {
     background: var(--info-color);
     color: white;
+    box-shadow: var(--shadow);
 }
 
 .section-icon {
-    font-size: 24px;
+    font-size: 20px;
+}
+
+.section-name {
+    font-size: 14px;
 }
 
 /* Current Selection */
@@ -305,22 +303,22 @@ body {
 .item-entry {
     background: var(--secondary-color);
     border-radius: var(--border-radius);
-    padding: 24px;
+    padding: 20px;
     margin-bottom: 20px;
     box-shadow: var(--shadow);
 }
 
 .form-header h3 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     color: var(--text-color);
 }
 
 .item-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 .form-row {
@@ -329,14 +327,28 @@ body {
     flex-wrap: wrap;
 }
 
-.form-group {
-    flex: 1;
-    min-width: 150px;
+.form-row-compact {
+    gap: 8px;
 }
 
-.form-group.flex-1 {
+.form-group {
     flex: 1;
-    min-width: 100%;
+    min-width: 120px;
+}
+
+.form-group-name {
+    flex: 3;
+    min-width: 180px;
+}
+
+.form-group-quantity {
+    flex: 1;
+    min-width: 80px;
+}
+
+.form-group-unit {
+    flex: 1;
+    min-width: 100px;
 }
 
 .form-group label {

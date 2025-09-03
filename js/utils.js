@@ -276,6 +276,7 @@ const Utils = {
      */
     getFieldDisplayName(fieldName) {
         const fieldMap = {
+            'name': 'tên sản phẩm',
             'itemName': 'tên sản phẩm',
             'quantity': 'số lượng',
             'unit': 'đơn vị',
