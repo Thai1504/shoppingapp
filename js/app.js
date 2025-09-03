@@ -14,6 +14,13 @@ class ShoppingApp {
             isLoading: false
         };
 
+        // Scroll state
+        this.scrollState = {
+            lastScrollY: 0,
+            scrollDirection: 'up',
+            scrolling: false
+        };
+
         // UI elements
         this.elements = {};
 
@@ -63,7 +70,7 @@ class ShoppingApp {
         // Main containers
         this.elements.loadingIndicator = document.getElementById('loadingIndicator');
         this.elements.stickyNav = document.getElementById('stickyNav');
-        this.elements.itemEntry = document.getElementById('itemEntry');
+        this.elements.searchSection = document.getElementById('searchSection');
         this.elements.itemsList = document.getElementById('itemsList');
 
         // Form elements
@@ -94,7 +101,11 @@ class ShoppingApp {
         this.elements.emptyState = document.getElementById('emptyState');
 
         // Action buttons
-        this.elements.fab = document.getElementById('fab');
+        this.elements.addItemBtn = document.getElementById('addItemBtn');
+        
+        // Modal elements
+        this.elements.addItemModal = document.getElementById('addItemModal');
+        this.elements.modalClose = document.getElementById('modalClose');
 
 
         // File input
@@ -105,7 +116,7 @@ class ShoppingApp {
      * Set up all event listeners
      */
     setupEventListeners() {
-        // Date selection
+        // Date selection with clearing logic
         if (this.elements.selectedDate) {
             this.cleanupFunctions.push(
                 Utils.addEventListenerWithCleanup(
@@ -126,7 +137,7 @@ class ShoppingApp {
             );
         }
 
-        // Hotel selection
+        // Hotel selection with clearing logic
         if (this.elements.hotelSelect) {
             this.cleanupFunctions.push(
                 Utils.addEventListenerWithCleanup(
@@ -205,16 +216,51 @@ class ShoppingApp {
         }
 
 
-        // FAB
-        if (this.elements.fab) {
+        // Add Item Button
+        if (this.elements.addItemBtn) {
             this.cleanupFunctions.push(
                 Utils.addEventListenerWithCleanup(
-                    this.elements.fab, 
+                    this.elements.addItemBtn, 
                     'click', 
-                    () => this.scrollToForm()
+                    () => this.openAddItemModal()
                 )
             );
         }
+
+        // Modal close
+        if (this.elements.modalClose) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.modalClose, 
+                    'click', 
+                    () => this.closeAddItemModal()
+                )
+            );
+        }
+
+        // Modal backdrop close
+        if (this.elements.addItemModal) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.addItemModal, 
+                    'click', 
+                    (e) => {
+                        if (e.target === this.elements.addItemModal) {
+                            this.closeAddItemModal();
+                        }
+                    }
+                )
+            );
+        }
+
+        // Scroll behavior
+        this.cleanupFunctions.push(
+            Utils.addEventListenerWithCleanup(
+                window,
+                'scroll',
+                Utils.debounce(() => this.handleScroll(), 10)
+            )
+        );
 
 
         // File input for import
@@ -255,13 +301,19 @@ class ShoppingApp {
         if (!date) return;
 
         this.currentState.selectedDate = date;
-        this.updateSelectionSummary();
-        this.enableStep('hotel');
         
-        // If hotel and section are already selected, load items
-        if (this.currentState.selectedHotel && this.currentState.selectedSection) {
-            this.loadCurrentItems();
+        // Clear dependent selections
+        this.currentState.selectedHotel = null;
+        this.currentState.selectedSection = null;
+        this.currentState.currentItems = [];
+        
+        // Reset UI
+        if (this.elements.hotelSelect) {
+            this.elements.hotelSelect.value = '';
         }
+        this.updateSectionTabs();
+        
+        this.updateMainInterface();
     }
 
     /**
@@ -272,12 +324,13 @@ class ShoppingApp {
 
         this.currentState.selectedHotel = hotel;
         
-        // If section is already selected, load items
-        if (this.currentState.selectedSection) {
-            this.loadCurrentItems();
-        }
+        // Clear dependent selection
+        this.currentState.selectedSection = null;
+        this.currentState.currentItems = [];
         
-        // Show form and list
+        // Reset section UI
+        this.updateSectionTabs();
+        
         this.updateMainInterface();
     }
 
@@ -419,7 +472,7 @@ class ShoppingApp {
                 formData
             );
 
-            this.clearForm();
+            this.closeAddItemModal();
             this.loadCurrentItems();
             
             Utils.showToast(`Đã thêm ${newItem.name}`, 'success');
@@ -694,9 +747,9 @@ class ShoppingApp {
                                this.currentState.selectedHotel && 
                                this.currentState.selectedSection;
         
-        // Show/hide item entry form
-        if (this.elements.itemEntry) {
-            this.elements.itemEntry.style.display = canShowContent ? 'block' : 'none';
+        // Show/hide search section
+        if (this.elements.searchSection) {
+            this.elements.searchSection.style.display = canShowContent ? 'flex' : 'none';
         }
 
         // Show/hide items list
@@ -704,9 +757,9 @@ class ShoppingApp {
             this.elements.itemsList.style.display = canShowContent ? 'block' : 'none';
         }
 
-        // Show/hide FAB
-        if (this.elements.fab) {
-            this.elements.fab.style.display = canShowContent ? 'block' : 'none';
+        // Show/hide add item button
+        if (this.elements.addItemBtn) {
+            this.elements.addItemBtn.style.display = canShowContent ? 'flex' : 'none';
         }
     }
 
@@ -806,14 +859,73 @@ class ShoppingApp {
     }
 
     /**
-     * Scroll to form
+     * Open add item modal
      */
-    scrollToForm() {
-        if (this.elements.itemEntry) {
-            this.elements.itemEntry.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-            });
+    openAddItemModal() {
+        if (this.elements.addItemModal) {
+            this.elements.addItemModal.classList.add('active');
+            
+            // Focus first input
+            if (this.elements.itemName) {
+                this.elements.itemName.focus();
+            }
+        }
+    }
+
+    /**
+     * Close add item modal
+     */
+    closeAddItemModal() {
+        if (this.elements.addItemModal) {
+            this.elements.addItemModal.classList.remove('active');
+            this.clearForm();
+        }
+    }
+
+    /**
+     * Handle scroll behavior for sticky header
+     */
+    handleScroll() {
+        const currentScrollY = window.scrollY;
+        const scrollDelta = currentScrollY - this.scrollState.lastScrollY;
+        
+        // Determine scroll direction
+        if (Math.abs(scrollDelta) > 10) {
+            this.scrollState.scrollDirection = scrollDelta > 0 ? 'down' : 'up';
+            this.scrollState.scrolling = true;
+            
+            // Clear scrolling state after a delay
+            clearTimeout(this.scrollTimeout);
+            this.scrollTimeout = setTimeout(() => {
+                this.scrollState.scrolling = false;
+            }, 150);
+        }
+        
+        this.scrollState.lastScrollY = currentScrollY;
+        this.updateStickyBehavior();
+    }
+
+    /**
+     * Update sticky header behavior based on scroll
+     */
+    updateStickyBehavior() {
+        if (!this.elements.stickyNav) return;
+        
+        const scrollY = window.scrollY;
+        
+        if (scrollY > 100) {
+            // Enable compact mode when scrolled down
+            if (this.scrollState.scrollDirection === 'down' && this.scrollState.scrolling) {
+                this.elements.stickyNav.classList.add('compact');
+            }
+            
+            // Enable full mode when scrolling up
+            if (this.scrollState.scrollDirection === 'up' && this.scrollState.scrolling) {
+                this.elements.stickyNav.classList.remove('compact');
+            }
+        } else {
+            // Always full mode at top
+            this.elements.stickyNav.classList.remove('compact');
         }
     }
 

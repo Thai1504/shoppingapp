@@ -45,7 +45,7 @@ body {
     padding: 0;
     min-height: 100vh;
     padding-top: 180px; /* Space for sticky nav */
-    padding-bottom: 80px; /* Space for FAB */
+    padding-bottom: 20px;
 }
 
 /* Sticky Navigation */
@@ -59,6 +59,46 @@ body {
     box-shadow: var(--shadow);
     z-index: 1000;
     padding: 12px 16px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+/* Compact mode when scrolling down */
+.sticky-nav.compact {
+    padding: 6px 16px;
+    transform: translateY(0);
+}
+
+.sticky-nav.compact .nav-row {
+    margin-bottom: 6px;
+    opacity: 0.8;
+}
+
+.sticky-nav.compact .nav-input,
+.sticky-nav.compact .nav-select,
+.sticky-nav.compact .btn-today {
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.sticky-nav.compact .section-tab {
+    min-height: 32px;
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+.sticky-nav.compact .section-icon {
+    font-size: 14px;
+}
+
+.sticky-nav.compact .section-name {
+    font-size: 10px;
+}
+
+/* Hide when scrolling down fast */
+.sticky-nav.hidden {
+    transform: translateY(-100%);
 }
 
 .nav-row {
@@ -217,21 +257,7 @@ body {
 }
 
 
-/* Item Entry Form */
-.item-entry {
-    background: var(--secondary-color);
-    border-radius: var(--border-radius-sm);
-    padding: 16px;
-    margin: 16px;
-    box-shadow: var(--shadow);
-}
-
-.item-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
+/* Form Styles (used in modal) */
 .form-row {
     display: flex;
     gap: 8px;
@@ -385,34 +411,45 @@ body {
 
 /* Search Section */
 .search-section {
-    padding: 12px 16px;
+    padding: 16px;
     background: var(--bg-color);
     display: flex;
     gap: 12px;
-    flex-wrap: wrap;
+    align-items: center;
     border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: var(--sticky-nav-height, 180px);
+    z-index: 999;
+    transition: top 0.3s ease;
 }
 
 .search-input {
-    flex: 2;
+    flex: 3;
     min-width: 200px;
-    padding: 10px 12px;
+    padding: 12px 16px;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius-sm);
-    font-size: 14px;
+    font-size: 16px;
     background: var(--bg-color);
-    min-height: 40px;
+    min-height: 44px;
+    transition: var(--transition);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.2);
 }
 
 .filter-select {
     flex: 1;
-    min-width: 120px;
-    padding: 10px 12px;
+    min-width: 140px;
+    padding: 12px 16px;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius-sm);
-    font-size: 14px;
+    font-size: 16px;
     background: var(--bg-color);
-    min-height: 40px;
+    min-height: 44px;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -421,6 +458,19 @@ body {
     background-position: right 12px center;
     background-size: 16px;
     padding-right: 36px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.2);
+}
+
+/* Adjust search section when nav is compact */
+.sticky-nav.compact ~ .container .search-section {
+    --sticky-nav-height: 120px;
 }
 
 /* Table Container */
@@ -567,18 +617,19 @@ body {
 }
 
 
-/* Floating Action Button */
-.fab {
+/* Add Item Button */
+.add-item-btn {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
-    width: 60px;
-    height: 60px;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 50%;
-    font-size: 24px;
+    border-radius: 50px;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
     box-shadow: var(--shadow-lg);
     transition: var(--transition);
@@ -586,12 +637,81 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
+    min-height: 52px;
+    white-space: nowrap;
 }
 
-.fab:hover,
-.fab:active {
+.add-item-btn:hover,
+.add-item-btn:active {
     background: var(--primary-dark);
-    transform: scale(1.1);
+    transform: translateX(-50%) scale(1.05);
+}
+
+/* Add Item Modal */
+.add-item-modal {
+    z-index: 10000;
+}
+
+.add-item-modal .modal-content {
+    width: 95%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--text-light);
+    padding: 4px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    background: var(--secondary-color);
+    color: var(--text-color);
+}
+
+.modal-form {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.modal-actions .btn {
+    flex: 1;
 }
 
 /* Modal */
