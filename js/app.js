@@ -62,10 +62,7 @@ class ShoppingApp {
     cacheElements() {
         // Main containers
         this.elements.loadingIndicator = document.getElementById('loadingIndicator');
-        this.elements.dateStep = document.getElementById('dateStep');
-        this.elements.hotelStep = document.getElementById('hotelStep');
-        this.elements.sectionStep = document.getElementById('sectionStep');
-        this.elements.currentSelection = document.getElementById('currentSelection');
+        this.elements.stickyNav = document.getElementById('stickyNav');
         this.elements.itemEntry = document.getElementById('itemEntry');
         this.elements.itemsList = document.getElementById('itemsList');
 
@@ -85,14 +82,8 @@ class ShoppingApp {
         this.elements.hotelSelect = document.getElementById('hotelSelect');
         this.elements.sectionTabs = document.querySelectorAll('.section-tab');
 
-        // Summary elements
-        this.elements.summaryDate = document.getElementById('summaryDate');
-        this.elements.summaryHotel = document.getElementById('summaryHotel');
-        this.elements.summarySection = document.getElementById('summarySection');
-        this.elements.changeSelectionBtn = document.getElementById('changeSelectionBtn');
 
         // List elements
-        this.elements.listTitle = document.getElementById('listTitle');
         this.elements.searchInput = document.getElementById('searchInput');
         this.elements.statusFilter = document.getElementById('statusFilter');
         this.elements.itemsTableBody = document.getElementById('itemsTableBody');
@@ -103,15 +94,8 @@ class ShoppingApp {
         this.elements.emptyState = document.getElementById('emptyState');
 
         // Action buttons
-        this.elements.markAllDoneBtn = document.getElementById('markAllDoneBtn');
-        this.elements.clearDoneBtn = document.getElementById('clearDoneBtn');
         this.elements.fab = document.getElementById('fab');
 
-        // Menu elements
-        this.elements.menuToggle = document.getElementById('menuToggle');
-        this.elements.mobileMenu = document.getElementById('mobileMenu');
-        this.elements.menuClose = document.getElementById('menuClose');
-        this.elements.menuItems = document.querySelectorAll('.menu-item');
 
         // File input
         this.elements.fileInput = document.getElementById('fileInput');
@@ -197,16 +181,6 @@ class ShoppingApp {
             );
         }
 
-        // Change selection button
-        if (this.elements.changeSelectionBtn) {
-            this.cleanupFunctions.push(
-                Utils.addEventListenerWithCleanup(
-                    this.elements.changeSelectionBtn, 
-                    'click', 
-                    () => this.resetSelection()
-                )
-            );
-        }
 
         // Search and filter
         if (this.elements.searchInput) {
@@ -230,26 +204,6 @@ class ShoppingApp {
             );
         }
 
-        // Bulk actions
-        if (this.elements.markAllDoneBtn) {
-            this.cleanupFunctions.push(
-                Utils.addEventListenerWithCleanup(
-                    this.elements.markAllDoneBtn, 
-                    'click', 
-                    () => this.handleMarkAllDone()
-                )
-            );
-        }
-
-        if (this.elements.clearDoneBtn) {
-            this.cleanupFunctions.push(
-                Utils.addEventListenerWithCleanup(
-                    this.elements.clearDoneBtn, 
-                    'click', 
-                    () => this.handleClearCompleted()
-                )
-            );
-        }
 
         // FAB
         if (this.elements.fab) {
@@ -262,37 +216,6 @@ class ShoppingApp {
             );
         }
 
-        // Menu
-        if (this.elements.menuToggle) {
-            this.cleanupFunctions.push(
-                Utils.addEventListenerWithCleanup(
-                    this.elements.menuToggle, 
-                    'click', 
-                    () => this.toggleMenu()
-                )
-            );
-        }
-
-        if (this.elements.menuClose) {
-            this.cleanupFunctions.push(
-                Utils.addEventListenerWithCleanup(
-                    this.elements.menuClose, 
-                    'click', 
-                    () => this.closeMenu()
-                )
-            );
-        }
-
-        // Menu items
-        this.elements.menuItems.forEach(item => {
-            this.cleanupFunctions.push(
-                Utils.addEventListenerWithCleanup(
-                    item, 
-                    'click', 
-                    () => this.handleMenuAction(item.dataset.action)
-                )
-            );
-        });
 
         // File input for import
         if (this.elements.fileInput) {
@@ -305,20 +228,6 @@ class ShoppingApp {
             );
         }
 
-        // Menu overlay close
-        if (this.elements.mobileMenu) {
-            this.cleanupFunctions.push(
-                Utils.addEventListenerWithCleanup(
-                    this.elements.mobileMenu, 
-                    'click', 
-                    (e) => {
-                        if (e.target === this.elements.mobileMenu) {
-                            this.closeMenu();
-                        }
-                    }
-                )
-            );
-        }
     }
 
     /**
@@ -359,45 +268,30 @@ class ShoppingApp {
      * Handle hotel selection
      */
     handleHotelSelect(hotel) {
-        if (!this.currentState.selectedDate) {
-            Utils.showToast('Vui lòng chọn ngày trước', 'warning');
-            if (this.elements.hotelSelect) {
-                this.elements.hotelSelect.value = '';
-            }
-            return;
-        }
-
         if (!hotel) return;
 
         this.currentState.selectedHotel = hotel;
-        
-        // Update UI
-        this.updateSelectionSummary();
-        this.enableStep('section');
         
         // If section is already selected, load items
         if (this.currentState.selectedSection) {
             this.loadCurrentItems();
         }
+        
+        // Show form and list
+        this.updateMainInterface();
     }
 
     /**
      * Handle section selection
      */
     handleSectionSelect(section) {
-        if (!this.currentState.selectedHotel) {
-            Utils.showToast('Vui lòng chọn khách sạn trước', 'warning');
-            return;
-        }
-
         this.currentState.selectedSection = section;
         
         // Update UI
         this.updateSectionTabs();
-        this.updateSelectionSummary();
         this.loadItemPool(section);
         this.loadCurrentItems();
-        this.showMainInterface();
+        this.updateMainInterface();
     }
 
     /**
@@ -765,55 +659,6 @@ class ShoppingApp {
         }
     }
 
-    /**
-     * Handle mark all done
-     */
-    async handleMarkAllDone() {
-        if (!this.isSelectionComplete()) return;
-
-        try {
-            DataManager.markAllItems(
-                this.currentState.selectedHotel,
-                this.currentState.selectedDate,
-                this.currentState.selectedSection,
-                true
-            );
-
-            this.loadCurrentItems();
-            Utils.showToast('Đã đánh dấu tất cả hoàn thành', 'success');
-        } catch (error) {
-            console.error('Error marking all done:', error);
-            Utils.showToast('Lỗi khi đánh dấu hoàn thành', 'error');
-        }
-    }
-
-    /**
-     * Handle clear completed items
-     */
-    async handleClearCompleted() {
-        if (!this.isSelectionComplete()) return;
-
-        const confirmed = await Utils.showConfirm(
-            'Xóa sản phẩm đã hoàn thành',
-            'Bạn có chắc chắn muốn xóa tất cả sản phẩm đã hoàn thành?'
-        );
-
-        if (!confirmed) return;
-
-        try {
-            const deletedCount = DataManager.deleteCompletedItems(
-                this.currentState.selectedHotel,
-                this.currentState.selectedDate,
-                this.currentState.selectedSection
-            );
-
-            this.loadCurrentItems();
-            Utils.showToast(`Đã xóa ${deletedCount} sản phẩm đã hoàn thành`, 'success');
-        } catch (error) {
-            console.error('Error clearing completed items:', error);
-            Utils.showToast('Lỗi khi xóa sản phẩm đã hoàn thành', 'error');
-        }
-    }
 
     /**
      * Update totals in footer
@@ -838,93 +683,30 @@ class ShoppingApp {
      * Update UI based on current state
      */
     updateUI() {
-        this.updateSelectionSummary();
-        this.updateStepStates();
         this.updateMainInterface();
-    }
-
-    /**
-     * Update selection summary
-     */
-    updateSelectionSummary() {
-        if (this.elements.summaryDate) {
-            const dateText = this.currentState.selectedDate 
-                ? `📅 ${Utils.formatDate(this.currentState.selectedDate)}`
-                : '📅';
-            this.elements.summaryDate.textContent = dateText;
-        }
-
-        if (this.elements.summaryHotel) {
-            const hotelInfo = this.currentState.selectedHotel 
-                ? Utils.getHotelInfo(this.currentState.selectedHotel)
-                : { icon: '🏨', name: '' };
-            this.elements.summaryHotel.textContent = `${hotelInfo.icon} ${hotelInfo.name}`;
-        }
-
-        if (this.elements.summarySection) {
-            const sectionInfo = this.currentState.selectedSection 
-                ? Utils.getSectionInfo(this.currentState.selectedSection)
-                : { icon: '📦', name: '' };
-            this.elements.summarySection.textContent = `${sectionInfo.icon} ${sectionInfo.name}`;
-        }
-
-        // Update list title
-        if (this.elements.listTitle && this.isSelectionComplete()) {
-            const sectionInfo = Utils.getSectionInfo(this.currentState.selectedSection);
-            const hotelInfo = Utils.getHotelInfo(this.currentState.selectedHotel);
-            this.elements.listTitle.textContent = 
-                `📝 ${sectionInfo.name} - ${hotelInfo.name} (${Utils.formatDate(this.currentState.selectedDate)})`;
-        }
-    }
-
-    /**
-     * Update step states
-     */
-    updateStepStates() {
-        // Enable/disable steps based on current state
-        if (this.currentState.selectedDate) {
-            this.enableStep('hotel');
-        } else {
-            this.disableStep('hotel');
-            this.disableStep('section');
-        }
-
-        if (this.currentState.selectedHotel) {
-            this.enableStep('section');
-        } else {
-            this.disableStep('section');
-        }
     }
 
     /**
      * Update main interface visibility
      */
     updateMainInterface() {
-        const isComplete = this.isSelectionComplete();
+        const canShowContent = this.currentState.selectedDate && 
+                               this.currentState.selectedHotel && 
+                               this.currentState.selectedSection;
         
-        // Show/hide current selection summary
-        if (this.elements.currentSelection) {
-            this.elements.currentSelection.style.display = isComplete ? 'block' : 'none';
-        }
-
         // Show/hide item entry form
         if (this.elements.itemEntry) {
-            this.elements.itemEntry.style.display = isComplete ? 'block' : 'none';
+            this.elements.itemEntry.style.display = canShowContent ? 'block' : 'none';
         }
 
         // Show/hide items list
         if (this.elements.itemsList) {
-            this.elements.itemsList.style.display = isComplete ? 'block' : 'none';
+            this.elements.itemsList.style.display = canShowContent ? 'block' : 'none';
         }
 
         // Show/hide FAB
         if (this.elements.fab) {
-            this.elements.fab.style.display = isComplete ? 'block' : 'none';
-        }
-
-        // Hide selection steps when complete
-        if (isComplete) {
-            this.hideSelectionSteps();
+            this.elements.fab.style.display = canShowContent ? 'block' : 'none';
         }
     }
 

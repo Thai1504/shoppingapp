@@ -16,33 +16,18 @@
     </div>
 
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>🏨 Quản Lý Mua Sắm v2.0</h1>
-            <p>Ứng dụng dành cho 4 khách sạn</p>
-            <button id="menuToggle" class="menu-toggle">☰</button>
-        </div>
 
-        <!-- Step 1: Date Selection -->
-        <div class="selection-step" id="dateStep">
-            <div class="step-header">
-                <span class="step-number">1</span>
-                <h2>📅 Chọn ngày mua sắm</h2>
+        <!-- Sticky Navigation -->
+        <div class="sticky-nav" id="stickyNav">
+            <!-- Date Selection -->
+            <div class="nav-row">
+                <input type="date" id="selectedDate" class="nav-input" required>
+                <button id="todayBtn" class="btn btn-today">Hôm nay</button>
             </div>
-            <div class="date-input-wrapper">
-                <input type="date" id="selectedDate" class="date-input" required>
-                <button id="todayBtn" class="btn btn-secondary">Hôm nay</button>
-            </div>
-        </div>
 
-        <!-- Step 2: Hotel Selection -->
-        <div class="selection-step" id="hotelStep">
-            <div class="step-header">
-                <span class="step-number">2</span>
-                <h2>🏨 Chọn khách sạn</h2>
-            </div>
-            <div class="hotel-dropdown-wrapper">
-                <select id="hotelSelect" class="hotel-dropdown">
+            <!-- Hotel Selection -->
+            <div class="nav-row">
+                <select id="hotelSelect" class="nav-select">
                     <option value="">-- Chọn khách sạn --</option>
                     <option value="36LS">🏨 36LS</option>
                     <option value="16TX">🏩 16TX</option>
@@ -50,67 +35,45 @@
                     <option value="49HG">🏬 49HG</option>
                 </select>
             </div>
-        </div>
 
-        <!-- Step 3: Section Selection -->
-        <div class="selection-step" id="sectionStep">
-            <div class="step-header">
-                <span class="step-number">3</span>
-                <h2>📦 Chọn danh mục</h2>
-            </div>
-            <div class="section-tabs">
-                <button class="section-tab" data-section="thit">
-                    <span class="section-icon">🥩</span>
-                    <span class="section-name">Thịt</span>
-                </button>
-                <button class="section-tab" data-section="rau">
-                    <span class="section-icon">🥬</span>
-                    <span class="section-name">Rau</span>
-                </button>
-                <button class="section-tab" data-section="dokho">
-                    <span class="section-icon">🌾</span>
-                    <span class="section-name">Đồ khô</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Current Selection Summary -->
-        <div class="current-selection" id="currentSelection" style="display: none;">
-            <div class="selection-summary">
-                <span id="summaryDate" class="summary-item">📅</span>
-                <span id="summaryHotel" class="summary-item">🏨</span>
-                <span id="summarySection" class="summary-item">📦</span>
-                <button id="changeSelectionBtn" class="btn btn-link">Thay đổi</button>
+            <!-- Section Tabs -->
+            <div class="nav-row">
+                <div class="section-tabs">
+                    <button class="section-tab" data-section="thit">
+                        <span class="section-icon">🥩</span>
+                        <span class="section-name">Thịt</span>
+                    </button>
+                    <button class="section-tab" data-section="rau">
+                        <span class="section-icon">🥬</span>
+                        <span class="section-name">Rau</span>
+                    </button>
+                    <button class="section-tab" data-section="dokho">
+                        <span class="section-icon">🌾</span>
+                        <span class="section-name">Đồ khô</span>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Item Entry Form -->
-        <div class="item-entry" id="itemEntry" style="display: none;">
-            <div class="form-header">
-                <h3>➕ Thêm sản phẩm mới</h3>
-            </div>
-            
+        <div class="item-entry" id="itemEntry">
             <form id="itemForm" class="item-form">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="itemPool">Chọn từ danh sách</label>
                         <select id="itemPool" class="form-select">
-                            <option value="">-- Chọn sản phẩm có sẵn --</option>
+                            <option value="">-- Chọn từ danh sách --</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-row form-row-compact">
                     <div class="form-group form-group-name">
-                        <label for="itemName">Tên sản phẩm *</label>
-                        <input type="text" id="itemName" class="form-input" placeholder="Nhập tên sản phẩm..." required>
+                        <input type="text" id="itemName" class="form-input" placeholder="Tên sản phẩm..." required>
                     </div>
                     <div class="form-group form-group-quantity">
-                        <label for="quantity">Số lượng *</label>
-                        <input type="number" id="quantity" class="form-input" value="1" step="0.1" min="0" required>
+                        <input type="number" id="quantity" class="form-input" value="1" step="0.1" min="0" placeholder="Số lượng" required>
                     </div>
                     <div class="form-group form-group-unit">
-                        <label for="unit">Đơn vị *</label>
                         <select id="unit" class="form-select" required>
                             <option value="kg">kg</option>
                             <option value="gram">gram</option>
@@ -126,36 +89,26 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="buyPrice">Giá mua (₫)</label>
-                        <input type="number" id="buyPrice" class="form-input" placeholder="0" min="0">
+                        <input type="number" id="buyPrice" class="form-input" placeholder="Giá mua (₫)" min="0">
                     </div>
                     <div class="form-group">
-                        <label for="sellPrice">Giá bán (₫)</label>
-                        <input type="number" id="sellPrice" class="form-input" placeholder="0" min="0">
+                        <input type="number" id="sellPrice" class="form-input" placeholder="Giá bán (₫)" min="0">
                     </div>
                 </div>
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
-                        ➕ Thêm sản phẩm
+                        ➕ Thêm
                     </button>
                     <button type="button" id="clearFormBtn" class="btn btn-secondary">
-                        🗑️ Xóa form
+                        🗑️ Xóa
                     </button>
                 </div>
             </form>
         </div>
 
         <!-- Items List -->
-        <div class="items-list" id="itemsList" style="display: none;">
-            <div class="list-header">
-                <h3 id="listTitle">📝 Danh sách sản phẩm</h3>
-                <div class="list-actions">
-                    <button id="markAllDoneBtn" class="btn btn-sm btn-success">✓ Đánh dấu tất cả</button>
-                    <button id="clearDoneBtn" class="btn btn-sm btn-warning">🗑️ Xóa đã hoàn thành</button>
-                </div>
-            </div>
-
+        <div class="items-list" id="itemsList">
             <!-- Search and Filter -->
             <div class="search-section">
                 <input type="text" id="searchInput" class="search-input" placeholder="🔍 Tìm kiếm sản phẩm...">
@@ -212,32 +165,6 @@
         </div>
     </div>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="menu-content">
-            <div class="menu-header">
-                <h3>Menu</h3>
-                <button id="menuClose" class="menu-close">&times;</button>
-            </div>
-            <div class="menu-items">
-                <button class="menu-item" data-action="export">
-                    <span>📥</span> Xuất dữ liệu
-                </button>
-                <button class="menu-item" data-action="import">
-                    <span>📤</span> Nhập dữ liệu
-                </button>
-                <button class="menu-item" data-action="print">
-                    <span>🖨️</span> In báo cáo
-                </button>
-                <button class="menu-item" data-action="help">
-                    <span>❓</span> Hướng dẫn
-                </button>
-                <button class="menu-item" data-action="about">
-                    <span>ℹ️</span> Thông tin
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Floating Action Button -->
     <button class="fab" id="fab" style="display: none;" title="Thêm sản phẩm nhanh">
