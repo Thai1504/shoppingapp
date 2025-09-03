@@ -490,7 +490,7 @@ body {
 .items-table th {
     background: var(--primary-color);
     color: white;
-    padding: 16px 12px;
+    padding: 12px 8px;
     text-align: left;
     font-weight: 600;
     font-size: 14px;
@@ -501,7 +501,7 @@ body {
 }
 
 .items-table td {
-    padding: 16px 12px;
+    padding: 12px 8px;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
     color: var(--text-color);
@@ -522,30 +522,30 @@ body {
 }
 
 .col-name-unit {
-    min-width: 200px;
+    min-width: 160px;
     font-weight: 600;
 }
 
 .col-price {
-    width: 100px;
+    width: 80px;
     text-align: right;
     font-weight: 600;
 }
 
 .col-total {
-    width: 150px;
+    width: 120px;
     text-align: right;
     font-weight: 600;
 }
 
 .total-calculation {
-    font-size: 13px;
-    line-height: 1.3;
+    font-size: 12px;
+    line-height: 1.2;
     color: var(--text-light);
 }
 
 .col-actions {
-    width: 120px;
+    width: 100px;
     text-align: center;
 }
 
@@ -798,7 +798,6 @@ body {
 .modal-content {
     background: var(--bg-color);
     border-radius: var(--border-radius);
-    padding: 24px;
     width: 100%;
     max-width: 400px;
     box-shadow: var(--shadow-lg);
