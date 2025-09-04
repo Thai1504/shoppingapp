@@ -23,6 +23,7 @@
             <div class="nav-row">
                 <input type="date" id="selectedDate" class="nav-input" required>
                 <button id="todayBtn" class="btn btn-today">Hôm nay</button>
+                <button id="cleanupBtn" class="btn btn-icon" title="Dọn dẹp dữ liệu">🗑️</button>
             </div>
 
             <!-- Hotel Selection -->
@@ -242,6 +243,53 @@
                         💾 Lưu thay đổi
                     </button>
                     <button type="button" id="editCancelBtn" class="btn btn-secondary">
+                        ❌ Hủy
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cleanup Modal -->
+    <div class="modal cleanup-modal" id="cleanupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🗑️ Dọn dẹp dữ liệu cũ</h3>
+                <button class="modal-close" id="cleanupModalClose">&times;</button>
+            </div>
+            
+            <form id="cleanupForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Từ ngày:</label>
+                        <input type="date" id="cleanupFromDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Đến ngày:</label>
+                        <input type="date" id="cleanupToDate" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="quick-select">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="app.setCleanupRange(30)">1 tháng trước</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="app.setCleanupRange(90)">3 tháng trước</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="app.setCleanupRange(180)">6 tháng trước</button>
+                    </div>
+                </div>
+
+                <div class="cleanup-preview">
+                    <p id="cleanupPreview">Chọn khoảng ngày để xem trước dữ liệu sẽ bị xóa</p>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="previewCleanupBtn" class="btn btn-secondary">
+                        👁️ Xem trước
+                    </button>
+                    <button type="submit" id="executeCleanupBtn" class="btn btn-danger" disabled>
+                        🗑️ Xóa dữ liệu
+                    </button>
+                    <button type="button" id="cleanupCancelBtn" class="btn btn-secondary">
                         ❌ Hủy
                     </button>
                 </div>

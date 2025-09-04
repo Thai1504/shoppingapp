@@ -76,6 +76,7 @@ class ShoppingApp {
         // Form elements
         this.elements.selectedDate = document.getElementById('selectedDate');
         this.elements.todayBtn = document.getElementById('todayBtn');
+        this.elements.cleanupBtn = document.getElementById('cleanupBtn');
         this.elements.itemForm = document.getElementById('itemForm');
         this.elements.itemName = document.getElementById('itemName');
         this.elements.itemPool = document.getElementById('itemPool');
@@ -120,6 +121,16 @@ class ShoppingApp {
         this.elements.editSellPrice = document.getElementById('editSellPrice');
         this.elements.editCancelBtn = document.getElementById('editCancelBtn');
 
+        // Cleanup modal elements
+        this.elements.cleanupModal = document.getElementById('cleanupModal');
+        this.elements.cleanupModalClose = document.getElementById('cleanupModalClose');
+        this.elements.cleanupForm = document.getElementById('cleanupForm');
+        this.elements.cleanupFromDate = document.getElementById('cleanupFromDate');
+        this.elements.cleanupToDate = document.getElementById('cleanupToDate');
+        this.elements.previewCleanupBtn = document.getElementById('previewCleanupBtn');
+        this.elements.executeCleanupBtn = document.getElementById('executeCleanupBtn');
+        this.elements.cleanupCancelBtn = document.getElementById('cleanupCancelBtn');
+        this.elements.cleanupPreview = document.getElementById('cleanupPreview');
 
         // File input
         this.elements.fileInput = document.getElementById('fileInput');
@@ -146,6 +157,16 @@ class ShoppingApp {
                     this.elements.todayBtn, 
                     'click', 
                     () => this.setToday()
+                )
+            );
+        }
+
+        if (this.elements.cleanupBtn) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.cleanupBtn, 
+                    'click', 
+                    () => this.openCleanupModal()
                 )
             );
         }
@@ -305,6 +326,61 @@ class ShoppingApp {
                     (e) => {
                         if (e.target === this.elements.editItemModal) {
                             this.closeEditModal();
+                        }
+                    }
+                )
+            );
+        }
+
+        // Cleanup modal events
+        if (this.elements.cleanupModalClose) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.cleanupModalClose, 
+                    'click', 
+                    () => this.closeCleanupModal()
+                )
+            );
+        }
+
+        if (this.elements.cleanupCancelBtn) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.cleanupCancelBtn, 
+                    'click', 
+                    () => this.closeCleanupModal()
+                )
+            );
+        }
+
+        if (this.elements.previewCleanupBtn) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.previewCleanupBtn, 
+                    'click', 
+                    () => this.previewCleanup()
+                )
+            );
+        }
+
+        if (this.elements.cleanupForm) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.cleanupForm, 
+                    'submit', 
+                    (e) => this.handleCleanupSubmit(e)
+                )
+            );
+        }
+
+        if (this.elements.cleanupModal) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.cleanupModal, 
+                    'click', 
+                    (e) => {
+                        if (e.target === this.elements.cleanupModal) {
+                            this.closeCleanupModal();
                         }
                     }
                 )
@@ -1324,6 +1400,168 @@ Phát triển bởi Shopping Manager Team`;
         });
         
         this.cleanupFunctions = [];
+    }
+
+    /**
+     * Open cleanup modal
+     */
+    openCleanupModal() {
+        if (this.elements.cleanupModal) {
+            this.elements.cleanupModal.classList.add('active');
+            
+            // Set default date range (30 days ago to yesterday)
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            
+            if (this.elements.cleanupFromDate) {
+                this.elements.cleanupFromDate.value = Utils.formatDateForInput(thirtyDaysAgo);
+            }
+            if (this.elements.cleanupToDate) {
+                this.elements.cleanupToDate.value = Utils.formatDateForInput(yesterday);
+            }
+            
+            // Reset preview and button state
+            if (this.elements.cleanupPreview) {
+                this.elements.cleanupPreview.textContent = 'Chọn khoảng ngày để xem trước dữ liệu sẽ bị xóa';
+            }
+            if (this.elements.executeCleanupBtn) {
+                this.elements.executeCleanupBtn.disabled = true;
+            }
+        }
+    }
+
+    /**
+     * Close cleanup modal
+     */
+    closeCleanupModal() {
+        if (this.elements.cleanupModal) {
+            this.elements.cleanupModal.classList.remove('active');
+        }
+    }
+
+    /**
+     * Set cleanup date range based on days ago
+     */
+    setCleanupRange(daysAgo) {
+        const today = new Date();
+        const fromDate = new Date(today);
+        fromDate.setDate(today.getDate() - daysAgo);
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        
+        if (this.elements.cleanupFromDate) {
+            this.elements.cleanupFromDate.value = Utils.formatDateForInput(fromDate);
+        }
+        if (this.elements.cleanupToDate) {
+            this.elements.cleanupToDate.value = Utils.formatDateForInput(yesterday);
+        }
+    }
+
+    /**
+     * Preview cleanup data
+     */
+    previewCleanup() {
+        if (!this.elements.cleanupFromDate || !this.elements.cleanupToDate || !this.elements.cleanupPreview) {
+            return;
+        }
+
+        const fromDate = this.elements.cleanupFromDate.value;
+        const toDate = this.elements.cleanupToDate.value;
+
+        if (!fromDate || !toDate) {
+            Utils.showToast('Vui lòng chọn khoảng ngày', 'warning');
+            return;
+        }
+
+        if (new Date(fromDate) > new Date(toDate)) {
+            Utils.showToast('Ngày bắt đầu phải nhỏ hơn ngày kết thúc', 'warning');
+            return;
+        }
+
+        try {
+            const dataInRange = DataManager.getDataInRange(fromDate, toDate);
+            
+            if (dataInRange.length === 0) {
+                this.elements.cleanupPreview.innerHTML = '🔍 <strong>Không tìm thấy dữ liệu nào trong khoảng thời gian này</strong>';
+                if (this.elements.executeCleanupBtn) {
+                    this.elements.executeCleanupBtn.disabled = true;
+                }
+            } else {
+                const totalItems = dataInRange.reduce((sum, day) => sum + day.totalItems, 0);
+                const totalDays = dataInRange.length;
+                
+                this.elements.cleanupPreview.innerHTML = `
+                    <strong>📊 Dữ liệu sẽ bị xóa:</strong><br>
+                    • <strong>${totalDays}</strong> ngày<br>
+                    • <strong>${totalItems}</strong> sản phẩm<br>
+                    • Từ <strong>${Utils.formatDate(fromDate)}</strong> đến <strong>${Utils.formatDate(toDate)}</strong>
+                `;
+                
+                if (this.elements.executeCleanupBtn) {
+                    this.elements.executeCleanupBtn.disabled = false;
+                }
+            }
+        } catch (error) {
+            console.error('Preview cleanup error:', error);
+            Utils.showToast('Lỗi khi xem trước dữ liệu', 'error');
+        }
+    }
+
+    /**
+     * Handle cleanup form submission
+     */
+    async handleCleanupSubmit(e) {
+        e.preventDefault();
+
+        if (!this.elements.cleanupFromDate || !this.elements.cleanupToDate) {
+            return;
+        }
+
+        const fromDate = this.elements.cleanupFromDate.value;
+        const toDate = this.elements.cleanupToDate.value;
+
+        if (!fromDate || !toDate) {
+            Utils.showToast('Vui lòng chọn khoảng ngày', 'warning');
+            return;
+        }
+
+        if (new Date(fromDate) > new Date(toDate)) {
+            Utils.showToast('Ngày bắt đầu phải nhỏ hơn ngày kết thúc', 'warning');
+            return;
+        }
+
+        try {
+            const confirmed = await Utils.showConfirm(
+                'Xác nhận xóa dữ liệu',
+                `Bạn có chắc chắn muốn xóa tất cả dữ liệu từ ${Utils.formatDate(fromDate)} đến ${Utils.formatDate(toDate)}? Hành động này không thể hoàn tác.`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            const result = DataManager.cleanupDataInRange(fromDate, toDate);
+            
+            this.closeCleanupModal();
+            
+            // Refresh current view if affected
+            if (this.currentState.selectedDate && 
+                this.currentState.selectedDate >= fromDate && 
+                this.currentState.selectedDate <= toDate) {
+                this.loadCurrentItems();
+            }
+            
+            Utils.showToast(
+                `Đã xóa ${result.deletedItems} sản phẩm từ ${result.deletedDates} ngày`,
+                'success'
+            );
+        } catch (error) {
+            console.error('Cleanup error:', error);
+            Utils.showToast('Lỗi khi xóa dữ liệu', 'error');
+        }
     }
 }
 

@@ -532,6 +532,107 @@ const DataManager = {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         
         return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    },
+
+    /**
+     * Get all dates with data within a range
+     * @param {string} fromDate - Start date (YYYY-MM-DD)
+     * @param {string} toDate - End date (YYYY-MM-DD)
+     * @returns {Array} Array of dates with data info
+     */
+    getDataInRange(fromDate, toDate) {
+        const data = this.load();
+        const result = [];
+        
+        const start = new Date(fromDate);
+        const end = new Date(toDate);
+        
+        Object.keys(data.hotels).forEach(hotel => {
+            const hotelData = data.hotels[hotel];
+            
+            Object.keys(hotelData).forEach(date => {
+                const dateObj = new Date(date);
+                
+                if (dateObj >= start && dateObj <= end) {
+                    const sections = hotelData[date];
+                    let totalItems = 0;
+                    
+                    Object.keys(sections).forEach(section => {
+                        if (Array.isArray(sections[section])) {
+                            totalItems += sections[section].length;
+                        }
+                    });
+                    
+                    if (totalItems > 0) {
+                        const existing = result.find(item => item.date === date);
+                        
+                        if (existing) {
+                            existing.hotels.push(hotel);
+                            existing.totalItems += totalItems;
+                        } else {
+                            result.push({
+                                date: date,
+                                hotels: [hotel],
+                                totalItems: totalItems,
+                                sections: Object.keys(sections).length
+                            });
+                        }
+                    }
+                }
+            });
+        });
+        
+        return result.sort((a, b) => new Date(a.date) - new Date(b.date));
+    },
+
+    /**
+     * Delete data within a date range
+     * @param {string} fromDate - Start date (YYYY-MM-DD)
+     * @param {string} toDate - End date (YYYY-MM-DD)
+     * @returns {Object} Cleanup result with deleted count
+     */
+    cleanupDataInRange(fromDate, toDate) {
+        const data = this.load();
+        let deletedDates = 0;
+        let deletedItems = 0;
+        
+        const start = new Date(fromDate);
+        const end = new Date(toDate);
+        
+        Object.keys(data.hotels).forEach(hotel => {
+            const hotelData = data.hotels[hotel];
+            const datesToDelete = [];
+            
+            Object.keys(hotelData).forEach(date => {
+                const dateObj = new Date(date);
+                
+                if (dateObj >= start && dateObj <= end) {
+                    const sections = hotelData[date];
+                    
+                    Object.keys(sections).forEach(section => {
+                        if (Array.isArray(sections[section])) {
+                            deletedItems += sections[section].length;
+                        }
+                    });
+                    
+                    datesToDelete.push(date);
+                }
+            });
+            
+            datesToDelete.forEach(date => {
+                delete hotelData[date];
+                deletedDates++;
+            });
+        });
+        
+        this.save(data);
+        
+        return {
+            deletedDates,
+            deletedItems,
+            fromDate,
+            toDate
+        };
     }
 };
 
