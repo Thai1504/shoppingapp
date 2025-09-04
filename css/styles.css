@@ -288,6 +288,20 @@ body {
     min-width: 100px;
 }
 
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.form-checkbox {
+    margin: 0;
+    cursor: pointer;
+}
+
 .form-input,
 .form-select {
     width: 100%;

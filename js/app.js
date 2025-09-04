@@ -83,6 +83,7 @@ class ShoppingApp {
         this.elements.unit = document.getElementById('unit');
         this.elements.buyPrice = document.getElementById('buyPrice');
         this.elements.sellPrice = document.getElementById('sellPrice');
+        this.elements.saveToPool = document.getElementById('saveToPool');
         this.elements.clearFormBtn = document.getElementById('clearFormBtn');
 
         // Selection elements
@@ -427,7 +428,7 @@ class ShoppingApp {
                 buyPrice: item.suggestedBuyPrice,
                 sellPrice: item.suggestedSellPrice
             });
-            option.textContent = `${item.name} (${Utils.formatCurrency(item.suggestedBuyPrice)})`;
+            option.textContent = `${item.name} (${item.suggestedBuyPrice}k₫)`;
             select.appendChild(option);
         });
     }
@@ -446,25 +447,76 @@ class ShoppingApp {
     populateDefaultItemPools() {
         const defaultPools = {
             thit: [
-                { name: 'Thịt bò', unit: 'kg', suggestedBuyPrice: 300000, suggestedSellPrice: 350000 },
-                { name: 'Thịt heo', unit: 'kg', suggestedBuyPrice: 120000, suggestedSellPrice: 140000 },
-                { name: 'Thịt gà', unit: 'kg', suggestedBuyPrice: 80000, suggestedSellPrice: 95000 },
-                { name: 'Cá basa', unit: 'kg', suggestedBuyPrice: 45000, suggestedSellPrice: 55000 },
-                { name: 'Tôm', unit: 'kg', suggestedBuyPrice: 300000, suggestedSellPrice: 350000 }
+                { name: 'Thịt bò mông', unit: 'kg', suggestedBuyPrice: 230, suggestedSellPrice: 230 },
+                { name: 'Thịt nạc vai', unit: 'kg', suggestedBuyPrice: 130, suggestedSellPrice: 130 },
+                { name: 'Thịt dẻ sườn bò', unit: 'kg', suggestedBuyPrice: 180, suggestedSellPrice: 180 },
+                { name: 'Thịt nạm bò', unit: 'kg', suggestedBuyPrice: 180, suggestedSellPrice: 180 },
+                { name: 'Thịt Bò', unit: 'kg', suggestedBuyPrice: 230, suggestedSellPrice: 230 },
+                { name: 'Cá Rô Phi Lê', unit: 'kg', suggestedBuyPrice: 90, suggestedSellPrice: 90 },
+                { name: 'Ngao', unit: 'kg', suggestedBuyPrice: 20, suggestedSellPrice: 20 },
+                { name: 'Chân Giò', unit: 'kg', suggestedBuyPrice: 120, suggestedSellPrice: 120 },
+                { name: 'Tôm Lớp Nhỏ', unit: 'kg', suggestedBuyPrice: 160, suggestedSellPrice: 160 },
+                { name: 'Gà', unit: 'kg', suggestedBuyPrice: 120, suggestedSellPrice: 120 }
             ],
             rau: [
-                { name: 'Cải thảo', unit: 'kg', suggestedBuyPrice: 15000, suggestedSellPrice: 18000 },
-                { name: 'Rau muống', unit: 'kg', suggestedBuyPrice: 8000, suggestedSellPrice: 12000 },
-                { name: 'Cà chua', unit: 'kg', suggestedBuyPrice: 25000, suggestedSellPrice: 30000 },
-                { name: 'Hành tây', unit: 'kg', suggestedBuyPrice: 20000, suggestedSellPrice: 25000 },
-                { name: 'Khoai tây', unit: 'kg', suggestedBuyPrice: 18000, suggestedSellPrice: 22000 }
+                { name: 'Cà rốt', unit: 'kg', suggestedBuyPrice: 13, suggestedSellPrice: 13 },
+                { name: 'Ớt xanh', unit: 'quả', suggestedBuyPrice: 8, suggestedSellPrice: 8 },
+                { name: 'Ớt đỏ', unit: 'quả', suggestedBuyPrice: 8, suggestedSellPrice: 8 },
+                { name: 'Ngô (bắp)', unit: 'kg', suggestedBuyPrice: 13, suggestedSellPrice: 13 },
+                { name: 'Xoài', unit: 'kg', suggestedBuyPrice: 25, suggestedSellPrice: 25 },
+                { name: 'Đậu Phụ', unit: 'bìa', suggestedBuyPrice: 3, suggestedSellPrice: 3 },
+                { name: 'Giá đỗ', unit: 'kg', suggestedBuyPrice: 15, suggestedSellPrice: 15 },
+                { name: 'Tỏi', unit: 'kg', suggestedBuyPrice: 45, suggestedSellPrice: 45 },
+                { name: 'Lá nếp', unit: 'kg', suggestedBuyPrice: 50, suggestedSellPrice: 50 },
+                { name: 'Bắp cải', unit: 'quả', suggestedBuyPrice: 15, suggestedSellPrice: 15 },
+                { name: 'Lơ trắng', unit: 'kg', suggestedBuyPrice: 40, suggestedSellPrice: 40 },
+                { name: 'Dưa chuột', unit: 'kg', suggestedBuyPrice: 20, suggestedSellPrice: 20 },
+                { name: 'Chanh Leo', unit: 'kg', suggestedBuyPrice: 30, suggestedSellPrice: 30 },
+                { name: 'Dưa hấu', unit: 'kg', suggestedBuyPrice: 16, suggestedSellPrice: 16 },
+                { name: 'Chuối', unit: 'nải', suggestedBuyPrice: 30, suggestedSellPrice: 30 },
+                { name: 'Rau Mùi', unit: 'kg', suggestedBuyPrice: 80, suggestedSellPrice: 80 },
+                { name: 'Hành Khô Thái', unit: 'kg', suggestedBuyPrice: 35, suggestedSellPrice: 35 },
+                { name: 'Hành Tây', unit: 'kg', suggestedBuyPrice: 12, suggestedSellPrice: 12 },
+                { name: 'Ớt Vàng', unit: 'kg', suggestedBuyPrice: 50, suggestedSellPrice: 50 },
+                { name: 'Cuộn Trắng', unit: 'kg', suggestedBuyPrice: 40, suggestedSellPrice: 40 },
+                { name: 'Cuộn Tím', unit: 'kg', suggestedBuyPrice: 90, suggestedSellPrice: 90 },
+                { name: 'Dưa Vàng', unit: 'kg', suggestedBuyPrice: 25, suggestedSellPrice: 25 },
+                { name: 'Xà Lách', unit: 'kg', suggestedBuyPrice: 25, suggestedSellPrice: 25 },
+                { name: 'Quất', unit: 'kg', suggestedBuyPrice: 20, suggestedSellPrice: 20 },
+                { name: 'Cà Chua', unit: 'kg', suggestedBuyPrice: 28, suggestedSellPrice: 28 },
+                { name: 'Nấm Hải Sản', unit: 'kg', suggestedBuyPrice: 35, suggestedSellPrice: 35 },
+                { name: 'Ớt Đà Lạt', unit: 'kg', suggestedBuyPrice: 40, suggestedSellPrice: 40 },
+                { name: 'Hoa Hồng', unit: 'bông', suggestedBuyPrice: 4, suggestedSellPrice: 4 },
+                { name: 'Táo', unit: 'kg', suggestedBuyPrice: 80, suggestedSellPrice: 80 },
+                { name: 'Rau Muống', unit: 'mớ', suggestedBuyPrice: 25, suggestedSellPrice: 25 },
+                { name: 'Cà Pháo', unit: 'kg', suggestedBuyPrice: 23, suggestedSellPrice: 23 },
+                { name: 'Riềng', unit: 'kg', suggestedBuyPrice: 10, suggestedSellPrice: 10 }
             ],
             dokho: [
-                { name: 'Gạo tẻ', unit: 'kg', suggestedBuyPrice: 20000, suggestedSellPrice: 25000 },
-                { name: 'Dầu ăn', unit: 'lít', suggestedBuyPrice: 65000, suggestedSellPrice: 75000 },
-                { name: 'Nước mắm', unit: 'chai', suggestedBuyPrice: 45000, suggestedSellPrice: 55000 },
-                { name: 'Đường trắng', unit: 'kg', suggestedBuyPrice: 25000, suggestedSellPrice: 30000 },
-                { name: 'Muối', unit: 'gói', suggestedBuyPrice: 8000, suggestedSellPrice: 12000 }
+                { name: 'Phở', unit: 'kg', suggestedBuyPrice: 15, suggestedSellPrice: 15 },
+                { name: 'Đậu cove', unit: 'kg', suggestedBuyPrice: 30, suggestedSellPrice: 30 },
+                { name: 'Củ đậu', unit: 'kg', suggestedBuyPrice: 12, suggestedSellPrice: 12 },
+                { name: 'Dấm Trắng', unit: 'thùng', suggestedBuyPrice: 265, suggestedSellPrice: 265 },
+                { name: 'Phô Mai lá', unit: 'gói', suggestedBuyPrice: 275, suggestedSellPrice: 275 },
+                { name: 'Phô Mai bào', unit: 'kg', suggestedBuyPrice: 220, suggestedSellPrice: 220 },
+                { name: 'Phô Mai Moza', unit: 'gói', suggestedBuyPrice: 85, suggestedSellPrice: 85 },
+                { name: 'Bột Mỳ', unit: 'kg', suggestedBuyPrice: 20, suggestedSellPrice: 20 },
+                { name: 'Đường', unit: 'kg', suggestedBuyPrice: 21, suggestedSellPrice: 21 },
+                { name: 'Bún', unit: 'kg', suggestedBuyPrice: 15, suggestedSellPrice: 15 },
+                { name: 'Phở Lá', unit: 'kg', suggestedBuyPrice: 15, suggestedSellPrice: 15 },
+                { name: 'Mắm Nam Ngư', unit: 'chai', suggestedBuyPrice: 55, suggestedSellPrice: 55 },
+                { name: 'Dầu Ăn', unit: 'thùng', suggestedBuyPrice: 800, suggestedSellPrice: 800 },
+                { name: 'Nước rửa bát', unit: 'thùng', suggestedBuyPrice: 280, suggestedSellPrice: 280 },
+                { name: 'Đường Phèn', unit: 'kg', suggestedBuyPrice: 30, suggestedSellPrice: 30 },
+                { name: 'Miến Dong', unit: 'kg', suggestedBuyPrice: 70, suggestedSellPrice: 70 },
+                { name: 'Bột Chiên Giòn', unit: 'kg', suggestedBuyPrice: 30, suggestedSellPrice: 30 },
+                { name: 'Cà Pháo Chua Ngọt', unit: 'lọ', suggestedBuyPrice: 60, suggestedSellPrice: 60 },
+                { name: 'Dưa Muối', unit: 'kg', suggestedBuyPrice: 24, suggestedSellPrice: 24 },
+                { name: 'Kem Tươi', unit: 'hộp', suggestedBuyPrice: 160, suggestedSellPrice: 160 },
+                { name: 'Cốt Dừa', unit: 'hộp', suggestedBuyPrice: 30, suggestedSellPrice: 30 },
+                { name: 'Ngũ Cốc Milo', unit: 'hộp', suggestedBuyPrice: 100, suggestedSellPrice: 100 },
+                { name: 'Ngũ Cốc Ngô To', unit: 'hộp', suggestedBuyPrice: 125, suggestedSellPrice: 125 },
+                { name: 'Ngũ Cốc Ngô Nhỏ', unit: 'hộp', suggestedBuyPrice: 85, suggestedSellPrice: 85 }
             ]
         };
 
@@ -529,10 +581,25 @@ class ShoppingApp {
                 formData
             );
 
+            // Save to pool if checkbox is checked
+            if (this.elements.saveToPool && this.elements.saveToPool.checked) {
+                const poolItem = {
+                    name: formData.name,
+                    unit: formData.unit,
+                    suggestedBuyPrice: formData.buyPrice, // Already in thousands format
+                    suggestedSellPrice: formData.sellPrice // Already in thousands format
+                };
+                
+                DataManager.addToItemPool(this.currentState.selectedSection, poolItem);
+                // Reload the item pool dropdown to include the new item
+                this.loadItemPool(this.currentState.selectedSection);
+                Utils.showToast(`Đã thêm "${formData.name}" và lưu vào danh sách`, 'success');
+            } else {
+                Utils.showToast(`Đã thêm ${newItem.name}`, 'success');
+            }
+
             this.closeAddItemModal();
             this.loadCurrentItems();
-            
-            Utils.showToast(`Đã thêm ${newItem.name}`, 'success');
         } catch (error) {
             console.error('Error adding item:', error);
             Utils.showToast('Lỗi khi thêm sản phẩm', 'error');
@@ -547,8 +614,8 @@ class ShoppingApp {
             name: this.elements.itemName?.value.trim() || '',
             quantity: this.elements.quantity?.value || '',
             unit: this.elements.unit?.value || 'kg',
-            buyPrice: this.elements.buyPrice?.value || '',
-            sellPrice: this.elements.sellPrice?.value || ''
+            buyPrice: this.elements.buyPrice?.value ? Utils.parseNumber(this.elements.buyPrice.value) : '',
+            sellPrice: this.elements.sellPrice?.value ? Utils.parseNumber(this.elements.sellPrice.value) : ''
         };
     }
 
@@ -565,6 +632,10 @@ class ShoppingApp {
         // Set default quantity to 1
         if (this.elements.quantity) {
             this.elements.quantity.value = '1';
+        }
+        // Reset save to pool checkbox
+        if (this.elements.saveToPool) {
+            this.elements.saveToPool.checked = false;
         }
         if (this.elements.itemName) {
             this.elements.itemName.focus();
@@ -652,10 +723,10 @@ class ShoppingApp {
         const sellTotal = Utils.calculateTotal(item.quantity, item.sellPrice);
 
         // Format calculation display in thousands
-        const buyPriceDisplay = item.buyPrice ? Utils.formatPriceInThousands(item.buyPrice) : '0';
-        const sellPriceDisplay = item.sellPrice ? Utils.formatPriceInThousands(item.sellPrice) : '0';
-        const buyTotalDisplay = Utils.formatPriceInThousands(buyTotal);
-        const sellTotalDisplay = Utils.formatPriceInThousands(sellTotal);
+        const buyPriceDisplay = item.buyPrice ? item.buyPrice : '0';
+        const sellPriceDisplay = item.sellPrice ? item.sellPrice : '0';
+        const buyTotalDisplay = buyTotal;
+        const sellTotalDisplay = sellTotal;
         
         const buyCalculation = item.buyPrice ? 
             `${buyPriceDisplay} × ${item.quantity}${item.unit} = ${buyTotalDisplay}` : 
@@ -826,8 +897,8 @@ class ShoppingApp {
                     name: formData.name,
                     quantity: Utils.parseNumber(formData.quantity),
                     unit: formData.unit,
-                    buyPrice: Utils.parseNumber(formData.buyPrice),
-                    sellPrice: Utils.parseNumber(formData.sellPrice)
+                    buyPrice: formData.buyPrice, // Already in thousands format
+                    sellPrice: formData.sellPrice // Already in thousands format
                 }
             );
 
@@ -849,8 +920,8 @@ class ShoppingApp {
             name: this.elements.editItemName?.value.trim() || '',
             quantity: this.elements.editQuantity?.value || '',
             unit: this.elements.editUnit?.value || 'kg',
-            buyPrice: this.elements.editBuyPrice?.value || '',
-            sellPrice: this.elements.editSellPrice?.value || ''
+            buyPrice: this.elements.editBuyPrice?.value ? Utils.parseNumber(this.elements.editBuyPrice.value) : '',
+            sellPrice: this.elements.editSellPrice?.value ? Utils.parseNumber(this.elements.editSellPrice.value) : ''
         };
     }
 
@@ -893,11 +964,11 @@ class ShoppingApp {
         const stats = Utils.calculateStats(items);
 
         if (this.elements.totalBuyAmount) {
-            this.elements.totalBuyAmount.textContent = Utils.formatPriceInThousands(stats.totalBuyAmount);
+            this.elements.totalBuyAmount.textContent = stats.totalBuyAmount;
         }
 
         if (this.elements.totalSellAmount) {
-            this.elements.totalSellAmount.textContent = Utils.formatPriceInThousands(stats.totalSellAmount);
+            this.elements.totalSellAmount.textContent = stats.totalSellAmount;
         }
 
         if (this.elements.itemCount) {
