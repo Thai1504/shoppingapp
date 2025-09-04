@@ -106,6 +106,18 @@ class ShoppingApp {
         // Modal elements
         this.elements.addItemModal = document.getElementById('addItemModal');
         this.elements.modalClose = document.getElementById('modalClose');
+        
+        // Edit modal elements
+        this.elements.editItemModal = document.getElementById('editItemModal');
+        this.elements.editModalClose = document.getElementById('editModalClose');
+        this.elements.editItemForm = document.getElementById('editItemForm');
+        this.elements.editItemId = document.getElementById('editItemId');
+        this.elements.editItemName = document.getElementById('editItemName');
+        this.elements.editQuantity = document.getElementById('editQuantity');
+        this.elements.editUnit = document.getElementById('editUnit');
+        this.elements.editBuyPrice = document.getElementById('editBuyPrice');
+        this.elements.editSellPrice = document.getElementById('editSellPrice');
+        this.elements.editCancelBtn = document.getElementById('editCancelBtn');
 
 
         // File input
@@ -247,6 +259,51 @@ class ShoppingApp {
                     (e) => {
                         if (e.target === this.elements.addItemModal) {
                             this.closeAddItemModal();
+                        }
+                    }
+                )
+            );
+        }
+
+        // Edit modal events
+        if (this.elements.editModalClose) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.editModalClose, 
+                    'click', 
+                    () => this.closeEditModal()
+                )
+            );
+        }
+
+        if (this.elements.editCancelBtn) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.editCancelBtn, 
+                    'click', 
+                    () => this.closeEditModal()
+                )
+            );
+        }
+
+        if (this.elements.editItemForm) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.editItemForm, 
+                    'submit', 
+                    (e) => this.handleEditFormSubmit(e)
+                )
+            );
+        }
+
+        if (this.elements.editItemModal) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.editItemModal, 
+                    'click', 
+                    (e) => {
+                        if (e.target === this.elements.editItemModal) {
+                            this.closeEditModal();
                         }
                     }
                 )
@@ -640,7 +697,7 @@ class ShoppingApp {
             </td>
             <td class="col-actions">
                 <button class="btn btn-edit btn-sm" 
-                        onclick="app.toggleEditMode('${item.id}')"
+                        onclick="app.openEditModal('${item.id}')"
                         title="Chỉnh sửa">
                     ✏️
                 </button>
@@ -699,29 +756,102 @@ class ShoppingApp {
     }
 
     /**
-     * Toggle edit mode for the table (only affects price input columns)
+     * Open edit modal for item
      */
-    toggleEditMode(itemId = null) {
-        const table = document.getElementById('itemsTable');
-        if (!table) return;
+    openEditModal(itemId) {
+        if (!this.isSelectionComplete()) return;
 
-        const isInEditMode = table.classList.contains('edit-mode');
-        
-        if (isInEditMode) {
-            // Exit edit mode - hide only price input columns
-            table.classList.remove('edit-mode');
-            const priceColumns = table.querySelectorAll('.col-price.edit-mode-only, .totals-price.edit-mode-only');
-            priceColumns.forEach(col => col.style.display = 'none');
-            
-            Utils.showToast('Đã thoát chế độ chỉnh sửa giá', 'info');
-        } else {
-            // Enter edit mode - show only price input columns
-            table.classList.add('edit-mode');
-            const priceColumns = table.querySelectorAll('.col-price.edit-mode-only, .totals-price.edit-mode-only');
-            priceColumns.forEach(col => col.style.display = '');
-            
-            Utils.showToast('Đã bật chế độ chỉnh sửa giá', 'info');
+        // Find the item
+        const item = this.currentState.currentItems.find(item => item.id === itemId);
+        if (!item) {
+            Utils.showToast('Không tìm thấy sản phẩm', 'error');
+            return;
         }
+
+        // Populate form fields
+        if (this.elements.editItemId) this.elements.editItemId.value = item.id;
+        if (this.elements.editItemName) this.elements.editItemName.value = item.name;
+        if (this.elements.editQuantity) this.elements.editQuantity.value = item.quantity;
+        if (this.elements.editUnit) this.elements.editUnit.value = item.unit;
+        if (this.elements.editBuyPrice) this.elements.editBuyPrice.value = item.buyPrice || '';
+        if (this.elements.editSellPrice) this.elements.editSellPrice.value = item.sellPrice || '';
+
+        // Open modal
+        if (this.elements.editItemModal) {
+            this.elements.editItemModal.classList.add('active');
+            
+            // Focus first input
+            if (this.elements.editItemName) {
+                this.elements.editItemName.focus();
+            }
+        }
+    }
+
+    /**
+     * Close edit modal
+     */
+    closeEditModal() {
+        if (this.elements.editItemModal) {
+            this.elements.editItemModal.classList.remove('active');
+        }
+    }
+
+    /**
+     * Handle edit form submission
+     */
+    async handleEditFormSubmit(e) {
+        e.preventDefault();
+
+        const formData = this.getEditFormData();
+        const validation = Utils.validateForm(formData, ['name', 'quantity', 'unit']);
+
+        if (!validation.isValid) {
+            Utils.showToast(validation.errors[0], 'error');
+            return;
+        }
+
+        try {
+            const itemId = this.elements.editItemId?.value;
+            if (!itemId) {
+                Utils.showToast('Lỗi: Không xác định được sản phẩm', 'error');
+                return;
+            }
+
+            DataManager.updateItem(
+                this.currentState.selectedHotel,
+                this.currentState.selectedDate,
+                this.currentState.selectedSection,
+                itemId,
+                {
+                    name: formData.name,
+                    quantity: Utils.parseNumber(formData.quantity),
+                    unit: formData.unit,
+                    buyPrice: Utils.parseNumber(formData.buyPrice),
+                    sellPrice: Utils.parseNumber(formData.sellPrice)
+                }
+            );
+
+            this.closeEditModal();
+            this.loadCurrentItems();
+            
+            Utils.showToast('Đã cập nhật sản phẩm', 'success');
+        } catch (error) {
+            console.error('Error updating item:', error);
+            Utils.showToast('Lỗi khi cập nhật sản phẩm', 'error');
+        }
+    }
+
+    /**
+     * Get edit form data
+     */
+    getEditFormData() {
+        return {
+            name: this.elements.editItemName?.value.trim() || '',
+            quantity: this.elements.editQuantity?.value || '',
+            unit: this.elements.editUnit?.value || 'kg',
+            buyPrice: this.elements.editBuyPrice?.value || '',
+            sellPrice: this.elements.editSellPrice?.value || ''
+        };
     }
 
     /**
