@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Hotel Procurement Management System</title>
+    <title>Quản Lý Mua Sắm Khách Sạn v2.0</title>
     <link rel="stylesheet" href="css/styles.css">
     <meta name="description" content="Ứng dụng quản lý mua sắm cho 4 khách sạn">
     <meta name="theme-color" content="#2c5aa0">
@@ -19,51 +19,49 @@
 
         <!-- Professional Navigation -->
         <div class="sticky-nav" id="stickyNav">
-            <div class="nav-container">
-                <!-- Date Selection -->
-                <div class="nav-row">
-                    <input type="date" id="selectedDate" class="nav-input" required>
-                    <button id="todayBtn" class="btn btn-today">Today</button>
-                    <button id="printBtn" class="btn btn-print" title="Print shopping list" style="display: none;">Print</button>
-                    <button id="exportBtn" class="btn btn-export" title="Export HTML file" style="display: none;">Export</button>
-                    <button id="cleanupBtn" class="btn btn-icon" title="Data cleanup">⚙</button>
-                </div>
+            <!-- Date Selection -->
+            <div class="nav-row">
+                <input type="date" id="selectedDate" class="nav-input" required>
+                <button id="todayBtn" class="btn btn-today">Hôm nay</button>
+                <button id="printBtn" class="btn btn-print" title="In danh sách mua sắm" style="display: none;">In danh sách</button>
+                <button id="exportBtn" class="btn btn-export" title="Xuất file HTML" style="display: none;">Xuất file</button>
+                <button id="cleanupBtn" class="btn btn-icon" title="Dọn dẹp dữ liệu">⚙</button>
+            </div>
 
-                <!-- Hotel Selection -->
-                <div class="nav-row">
-                    <select id="hotelSelect" class="nav-select">
-                        <option value="">-- Select Property --</option>
-                        <option value="36LS">Hotel 36LS</option>
-                        <option value="16TX">Hotel 16TX</option>
-                        <option value="55HT">Hotel 55HT</option>
-                        <option value="49HG">Hotel 49HG</option>
-                    </select>
-                </div>
+            <!-- Hotel Selection -->
+            <div class="nav-row">
+                <select id="hotelSelect" class="nav-select">
+                    <option value="">-- Chọn khách sạn --</option>
+                    <option value="36LS">Khách sạn 36LS</option>
+                    <option value="16TX">Khách sạn 16TX</option>
+                    <option value="55HT">Khách sạn 55HT</option>
+                    <option value="49HG">Khách sạn 49HG</option>
+                </select>
+            </div>
 
-                <!-- Section Tabs -->
-                <div class="nav-row">
-                    <div class="section-tabs">
-                        <button class="section-tab" data-section="thit">
-                            Meat & Poultry
-                        </button>
-                        <button class="section-tab" data-section="rau">
-                            Vegetables & Produce
-                        </button>
-                        <button class="section-tab" data-section="dokho">
-                            Dry Goods & Pantry
-                        </button>
-                    </div>
+            <!-- Section Tabs -->
+            <div class="nav-row">
+                <div class="section-tabs">
+                    <button class="section-tab" data-section="thit">
+                        Thịt
+                    </button>
+                    <button class="section-tab" data-section="rau">
+                        Rau củ
+                    </button>
+                    <button class="section-tab" data-section="dokho">
+                        Đồ khô
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- Search and Filter Section -->
         <div class="search-section" id="searchSection">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search products...">
+            <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm sản phẩm...">
             <select id="statusFilter" class="filter-select">
-                <option value="all">All Items</option>
-                <option value="pending">Pending</option>
-                <option value="done">Completed</option>
+                <option value="all">Tất cả</option>
+                <option value="pending">Chưa hoàn thành</option>
+                <option value="done">Đã hoàn thành</option>
             </select>
         </div>
 
@@ -75,13 +73,13 @@
                 <table class="items-table" id="itemsTable">
                     <thead>
                         <tr>
-                            <th class="col-checkbox">Status</th>
-                            <th class="col-name-unit">Product</th>
-                            <th class="col-price edit-mode-only" style="display: none;">Purchase (k₫)</th>
-                            <th class="col-price edit-mode-only" style="display: none;">Sale (k₫)</th>
-                            <th class="col-total">Total Purchase (k₫)</th>
-                            <th class="col-total">Total Sale (k₫)</th>
-                            <th class="col-actions">Actions</th>
+                            <th class="col-checkbox">✓</th>
+                            <th class="col-name-unit">Sản phẩm</th>
+                            <th class="col-price edit-mode-only" style="display: none;">Giá mua (k₫)</th>
+                            <th class="col-price edit-mode-only" style="display: none;">Giá bán (k₫)</th>
+                            <th class="col-total">Tổng mua (k₫)</th>
+                            <th class="col-total">Tổng bán (k₫)</th>
+                            <th class="col-actions">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="itemsTableBody">
@@ -90,10 +88,10 @@
                     <tfoot id="itemsTableFooter" style="display: none;">
                         <tr class="totals-row">
                             <td class="totals-label">
-                                <strong>TOTAL</strong>
+                                <strong>TỔNG</strong>
                             </td>
                             <td class="totals-summary">
-                                <strong id="itemCount">0 items</strong>
+                                <strong id="itemCount">0 sản phẩm</strong>
                             </td>
                             <td class="totals-price edit-mode-only" style="display: none;">
                                 <!-- Price columns space -->
@@ -117,69 +115,69 @@
 
             <!-- Empty State -->
             <div class="empty-state" id="emptyState">
-                <div class="empty-icon">□</div>
-                <h4>No Products Yet</h4>
-                <p>Add your first product to get started</p>
+                <div class="empty-icon">📦</div>
+                <h4>Chưa có sản phẩm nào</h4>
+                <p>Hãy thêm sản phẩm đầu tiên vào danh sách!</p>
             </div>
         </div>
     </div>
 
 
     <!-- Add Item Button -->
-    <button class="add-item-btn" id="addItemBtn" style="display: none;" title="Add Product">
-        + Add Product
+    <button class="add-item-btn" id="addItemBtn" style="display: none;" title="Thêm sản phẩm">
+        ➕ Thêm sản phẩm
     </button>
 
     <!-- Add Item Modal -->
     <div class="modal add-item-modal" id="addItemModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Add New Product</h3>
+                <h3>➕ Thêm sản phẩm mới</h3>
                 <button class="modal-close" id="modalClose">&times;</button>
             </div>
             
             <form id="itemForm" class="modal-form">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Select from existing products:</label>
+                        <label>Chọn từ danh sách có sẵn:</label>
                         <select id="itemPool" class="form-select">
-                            <option value="">-- Select from list --</option>
+                            <option value="">-- Chọn từ danh sách --</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-row form-row-compact">
                     <div class="form-group form-group-name">
-                        <label>Product Name</label>
-                        <input type="text" id="itemName" class="form-input" placeholder="Enter product name" required>
+                        <label>Tên sản phẩm</label>
+                        <input type="text" id="itemName" class="form-input" placeholder="Nhập tên sản phẩm" required>
                     </div>
                     <div class="form-group form-group-quantity">
-                        <label>Quantity</label>
-                        <input type="number" id="quantity" class="form-input" value="1" step="0.1" min="0" placeholder="Quantity" required>
+                        <label>Số lượng</label>
+                        <input type="number" id="quantity" class="form-input" value="1" step="0.1" min="0" placeholder="Số lượng" required>
                     </div>
                     <div class="form-group form-group-unit">
-                        <label>Unit</label>
+                        <label>Đơn vị</label>
                         <select id="unit" class="form-select" required>
                             <option value="kg">kg</option>
                             <option value="gram">gram</option>
-                            <option value="liter">liter</option>
-                            <option value="bottle">bottle</option>
-                            <option value="pack">pack</option>
-                            <option value="piece">piece</option>
-                            <option value="case">case</option>
-                            <option value="box">box</option>
+                            <option value="lít">lít</option>
+                            <option value="chai">chai</option>
+                            <option value="gói">gói</option>
+                            <option value="cái">cái</option>
+                            <option value="thùng">thùng</option>
+                            <option value="hộp">hộp</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Purchase Price (k₫)</label>
-                        <input type="number" id="buyPrice" class="form-input" placeholder="0.00" min="0">
+                        <label>Giá mua (k₫)</label>
+                        <input type="number" id="buyPrice" class="form-input" placeholder="0" min="0">
                     </div>
                     <div class="form-group">
-                        <label>Sale Price (k₫)</label>
-                        <input type="number" id="sellPrice" class="form-input" placeholder="0.00" min="0">
+                        <label>Giá bán (k₫)</label>
+                        <input type="number" id="sellPrice" class="form-input" placeholder="0" min="0">
                     </div>
                 </div>
 
@@ -187,17 +185,17 @@
                     <div class="form-group">
                         <label class="checkbox-label">
                             <input type="checkbox" id="saveToPool" class="form-checkbox">
-                            Save to product catalog for future use
+                            Lưu vào danh mục sản phẩm để dùng lại
                         </label>
                     </div>
                 </div>
 
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-primary">
-                        Add Product
+                        ➕ Thêm sản phẩm
                     </button>
                     <button type="button" id="clearFormBtn" class="btn btn-secondary">
-                        Clear Form
+                        🗑️ Xóa form
                     </button>
                 </div>
             </form>
@@ -208,7 +206,7 @@
     <div class="modal edit-item-modal" id="editItemModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Edit Product</h3>
+                <h3>✏️ Chỉnh sửa sản phẩm</h3>
                 <button class="modal-close" id="editModalClose">&times;</button>
             </div>
             
@@ -217,45 +215,45 @@
                 
                 <div class="form-row form-row-compact">
                     <div class="form-group form-group-name">
-                        <label>Product Name</label>
-                        <input type="text" id="editItemName" class="form-input" placeholder="Enter product name" required>
+                        <label>Tên sản phẩm</label>
+                        <input type="text" id="editItemName" class="form-input" placeholder="Nhập tên sản phẩm" required>
                     </div>
                     <div class="form-group form-group-quantity">
-                        <label>Quantity</label>
-                        <input type="number" id="editQuantity" class="form-input" step="0.1" min="0" placeholder="Quantity" required>
+                        <label>Số lượng</label>
+                        <input type="number" id="editQuantity" class="form-input" step="0.1" min="0" placeholder="Số lượng" required>
                     </div>
                     <div class="form-group form-group-unit">
-                        <label>Unit</label>
+                        <label>Đơn vị</label>
                         <select id="editUnit" class="form-select" required>
                             <option value="kg">kg</option>
                             <option value="gram">gram</option>
-                            <option value="liter">liter</option>
-                            <option value="bottle">bottle</option>
-                            <option value="pack">pack</option>
-                            <option value="piece">piece</option>
-                            <option value="case">case</option>
-                            <option value="box">box</option>
+                            <option value="lít">lít</option>
+                            <option value="chai">chai</option>
+                            <option value="gói">gói</option>
+                            <option value="cái">cái</option>
+                            <option value="thùng">thùng</option>
+                            <option value="hộp">hộp</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Purchase Price (k₫)</label>
-                        <input type="number" id="editBuyPrice" class="form-input" placeholder="0.00" min="0">
+                        <label>Giá mua (k₫)</label>
+                        <input type="number" id="editBuyPrice" class="form-input" placeholder="0" min="0">
                     </div>
                     <div class="form-group">
-                        <label>Sale Price (k₫)</label>
-                        <input type="number" id="editSellPrice" class="form-input" placeholder="0.00" min="0">
+                        <label>Giá bán (k₫)</label>
+                        <input type="number" id="editSellPrice" class="form-input" placeholder="0" min="0">
                     </div>
                 </div>
 
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-primary">
-                        Save Changes
+                        💾 Lưu thay đổi
                     </button>
                     <button type="button" id="editCancelBtn" class="btn btn-secondary">
-                        Cancel
+                        ❌ Hủy
                     </button>
                 </div>
             </form>
@@ -266,43 +264,43 @@
     <div class="modal cleanup-modal" id="cleanupModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Data Cleanup</h3>
+                <h3>🗑️ Dọn dẹp dữ liệu cũ</h3>
                 <button class="modal-close" id="cleanupModalClose">&times;</button>
             </div>
             
             <form id="cleanupForm" class="modal-form">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>From Date:</label>
+                        <label>Từ ngày:</label>
                         <input type="date" id="cleanupFromDate" class="form-input" required>
                     </div>
                     <div class="form-group">
-                        <label>To Date:</label>
+                        <label>Đến ngày:</label>
                         <input type="date" id="cleanupToDate" class="form-input" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="quick-select">
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="app.setCleanupRange(30)">1 month ago</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="app.setCleanupRange(90)">3 months ago</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="app.setCleanupRange(180)">6 months ago</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="app.setCleanupRange(30)">1 tháng trước</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="app.setCleanupRange(90)">3 tháng trước</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="app.setCleanupRange(180)">6 tháng trước</button>
                     </div>
                 </div>
 
                 <div class="cleanup-preview">
-                    <p id="cleanupPreview">Select date range to preview data that will be deleted</p>
+                    <p id="cleanupPreview">Chọn khoảng ngày để xem trước dữ liệu sẽ bị xóa</p>
                 </div>
 
                 <div class="modal-actions">
                     <button type="button" id="previewCleanupBtn" class="btn btn-secondary">
-                        Preview
+                        👁️ Xem trước
                     </button>
                     <button type="submit" id="executeCleanupBtn" class="btn btn-danger" disabled>
-                        Delete Data
+                        🗑️ Xóa dữ liệu
                     </button>
                     <button type="button" id="cleanupCancelBtn" class="btn btn-secondary">
-                        Cancel
+                        ❌ Hủy
                     </button>
                 </div>
             </form>
@@ -312,11 +310,11 @@
     <!-- Confirmation Modal -->
     <div class="modal" id="confirmModal">
         <div class="modal-content">
-            <h3 id="confirmTitle">Confirm Action</h3>
-            <p id="confirmMessage">Are you sure you want to perform this action?</p>
+            <h3 id="confirmTitle">Xác nhận</h3>
+            <p id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
             <div class="modal-actions">
-                <button id="confirmYes" class="btn btn-primary">Yes</button>
-                <button id="confirmNo" class="btn btn-secondary">No</button>
+                <button id="confirmYes" class="btn btn-primary">Có</button>
+                <button id="confirmNo" class="btn btn-secondary">Không</button>
             </div>
         </div>
     </div>

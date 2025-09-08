@@ -55,7 +55,7 @@ class ShoppingApp {
             
             this.showLoading(false);
             
-            Utils.showToast('Application ready!', 'success', 2000);
+            Utils.showToast('Ứng dụng đã sẵn sàng!', 'success', 2000);
         } catch (error) {
             console.error('Initialization error:', error);
             Utils.showToast('Application initialization error', 'error');
@@ -828,11 +828,11 @@ class ShoppingApp {
         
         const buyCalculation = item.buyPrice ? 
             `${buyPriceDisplay} × ${item.quantity} ${item.unit} = ${buyTotalDisplay}` : 
-            `No price set`;
+            `Chưa có giá`;
         
         const sellCalculation = item.sellPrice ? 
             `${sellPriceDisplay} × ${item.quantity} ${item.unit} = ${sellTotalDisplay}` : 
-            `No price set`;
+            `Chưa có giá`;
 
         row.innerHTML = `
             <td class="col-checkbox">
@@ -1737,10 +1737,10 @@ Phát triển bởi Shopping Manager Team`;
      */
     getHotelDisplayName(hotelCode) {
         const hotelNames = {
-            '36LS': '🏨 36LS',
-            '16TX': '🏩 16TX', 
-            '55HT': '🏪 55HT',
-            '49HG': '🏬 49HG'
+            '36LS': 'Khách sạn 36LS',
+            '16TX': 'Khách sạn 16TX', 
+            '55HT': 'Khách sạn 55HT',
+            '49HG': 'Khách sạn 49HG'
         };
         return hotelNames[hotelCode] || hotelCode;
     }
@@ -1834,10 +1834,10 @@ Phát triển bởi Shopping Manager Team`;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh Sách Mua Sắm - ${hotelName} - ${formattedDate}</title>
     <style>
-        /* Print-specific styles */
+        /* Optimized Print Styles for A4 Landscape */
         @page {
             size: A4 landscape;
-            margin: 1.5cm 1cm;
+            margin: 1.2cm 1cm;
         }
         
         * {
@@ -1847,9 +1847,9 @@ Phát triển bởi Shopping Manager Team`;
         }
         
         body {
-            font-family: 'Arial', sans-serif;
-            font-size: 14pt;
-            line-height: 1.4;
+            font-family: 'Times New Roman', Arial, sans-serif;
+            font-size: 16pt;
+            line-height: 1.5;
             color: black;
             background: white;
             padding: 20px;
@@ -1860,50 +1860,56 @@ Phát triển bởi Shopping Manager Team`;
             height: 100%;
             display: flex;
             flex-direction: column;
+            page-break-inside: avoid;
         }
         
         .print-header {
             text-align: center;
-            margin-bottom: 20pt;
-            border-bottom: 2pt solid #333;
-            padding-bottom: 10pt;
+            margin-bottom: 25pt;
+            border-bottom: 3pt solid #333;
+            padding-bottom: 15pt;
         }
         
         .print-title {
-            font-size: 24pt;
+            font-size: 28pt;
             font-weight: bold;
-            margin-bottom: 5pt;
+            margin-bottom: 8pt;
+            letter-spacing: 1pt;
         }
         
         .print-info {
-            font-size: 14pt;
-            color: #666;
+            font-size: 16pt;
+            color: #444;
+            font-weight: 500;
         }
         
         .print-sections {
             display: flex;
             flex: 1;
-            gap: 20pt;
-            margin-top: 10pt;
+            gap: 25pt;
+            margin-top: 15pt;
         }
         
         .print-section {
             flex: 1;
             border: 2pt solid #333;
-            padding: 12pt;
+            padding: 15pt;
             background: #fafafa;
+            border-radius: 4pt;
             page-break-inside: avoid;
+            min-height: 200pt;
         }
         
         .print-section-title {
-            font-size: 18pt;
+            font-size: 20pt;
             font-weight: bold;
             text-align: center;
-            margin-bottom: 12pt;
-            padding: 8pt;
+            margin-bottom: 15pt;
+            padding: 10pt;
             background: #333;
             color: white;
-            border-radius: 3pt;
+            border-radius: 4pt;
+            letter-spacing: 0.5pt;
         }
         
         .print-items {
@@ -1914,34 +1920,51 @@ Phát triển bởi Shopping Manager Team`;
         
         .print-item {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             padding: 8pt 0;
-            border-bottom: 1pt dotted #ccc;
-            font-size: 14pt;
+            border-bottom: 1pt solid #ddd;
+            font-size: 16pt;
+            line-height: 1.4;
+            page-break-inside: avoid;
         }
         
         .print-item:last-child {
             border-bottom: none;
         }
         
+        .print-item::before {
+            content: "☐ ";
+            font-size: 18pt;
+            font-weight: bold;
+            margin-right: 8pt;
+            color: #333;
+            flex-shrink: 0;
+        }
+        
         .print-item-name {
             flex: 1;
-            font-weight: 500;
+            font-weight: 600;
+            margin-right: 10pt;
+            color: #222;
         }
         
         .print-item-quantity {
             font-weight: bold;
-            color: #333;
-            margin-left: 10pt;
+            color: #000;
+            font-size: 16pt;
             white-space: nowrap;
+            background: #f0f0f0;
+            padding: 2pt 6pt;
+            border-radius: 2pt;
+            border: 1pt solid #ccc;
         }
         
         .print-empty {
             text-align: center;
-            color: #999;
+            color: #888;
             font-style: italic;
-            padding: 20pt 0;
+            padding: 30pt 0;
+            font-size: 14pt;
         }
         
         /* Print button for the HTML file */
@@ -1949,18 +1972,21 @@ Phát triển bởi Shopping Manager Team`;
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 12px 24px;
-            background: #007bff;
+            padding: 15px 30px;
+            background: #28a745;
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
             z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
         .print-button:hover {
-            background: #0056b3;
+            background: #218838;
+            transform: translateY(-2px);
         }
         
         @media print {
