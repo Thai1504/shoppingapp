@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Quản Lý Mua Sắm Khách Sạn v2.0</title>
+    <title>Quản Lý Mua Sắm Khách Sạn v3.0</title>
     <link rel="stylesheet" href="css/styles.css">
-    <meta name="description" content="Ứng dụng quản lý mua sắm cho 4 khách sạn">
-    <meta name="theme-color" content="#2c5aa0">
+    <meta name="description" content="Ứng dụng quản lý mua sắm cho 4 khách sạn - Phiên bản 3.0">
+    <meta name="theme-color" content="#16a34a">
 </head>
 <body>
     <!-- Loading indicator -->
@@ -312,6 +312,38 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Print Preview Modal -->
+    <div class="modal" id="printPreviewModal">
+        <div class="modal-content print-preview-modal">
+            <div class="modal-header">
+                <h3>👁️ Xem trước danh sách in</h3>
+                <button class="modal-close" id="printPreviewClose">&times;</button>
+            </div>
+            
+            <div class="print-preview-content">
+                <div class="preview-instructions">
+                    <p><strong>📋 Danh sách sẽ được in theo định dạng ngang A4 với 3 cột:</strong></p>
+                    <ul>
+                        <li>🥩 Thịt & Gia Cầm</li>
+                        <li>🥬 Rau Củ Quả</li>
+                        <li>🌾 Đồ Khô & Gia Vị</li>
+                    </ul>
+                    <div class="preview-actions">
+                        <button id="confirmPrintBtn" class="btn btn-primary">🖨️ Tiếp tục in</button>
+                        <button id="exportPreviewBtn" class="btn btn-export">📄 Xuất file HTML</button>
+                        <button id="cancelPreviewBtn" class="btn btn-secondary">❌ Hủy</button>
+                    </div>
+                </div>
+                
+                <div class="print-preview-container">
+                    <div id="printPreviewContent" class="print-preview-iframe">
+                        <!-- Preview content will be inserted here -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

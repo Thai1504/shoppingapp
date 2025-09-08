@@ -133,6 +133,14 @@ class ShoppingApp {
         this.elements.executeCleanupBtn = document.getElementById('executeCleanupBtn');
         this.elements.cleanupCancelBtn = document.getElementById('cleanupCancelBtn');
         this.elements.cleanupPreview = document.getElementById('cleanupPreview');
+        
+        // Print preview modal elements
+        this.elements.printPreviewModal = document.getElementById('printPreviewModal');
+        this.elements.printPreviewClose = document.getElementById('printPreviewClose');
+        this.elements.printPreviewContent = document.getElementById('printPreviewContent');
+        this.elements.confirmPrintBtn = document.getElementById('confirmPrintBtn');
+        this.elements.exportPreviewBtn = document.getElementById('exportPreviewBtn');
+        this.elements.cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
 
         // File input
         this.elements.fileInput = document.getElementById('fileInput');
@@ -168,7 +176,7 @@ class ShoppingApp {
                 Utils.addEventListenerWithCleanup(
                     this.elements.printBtn, 
                     'click', 
-                    () => this.printShoppingList()
+                    () => this.showPrintPreview()
                 )
             );
         }
@@ -179,6 +187,53 @@ class ShoppingApp {
                     this.elements.exportBtn, 
                     'click', 
                     () => this.exportShoppingList()
+                )
+            );
+        }
+
+        // Print preview modal event listeners
+        if (this.elements.printPreviewClose) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.printPreviewClose, 
+                    'click', 
+                    () => this.closePrintPreview()
+                )
+            );
+        }
+
+        if (this.elements.confirmPrintBtn) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.confirmPrintBtn, 
+                    'click', 
+                    () => {
+                        this.closePrintPreview();
+                        this.printShoppingList();
+                    }
+                )
+            );
+        }
+
+        if (this.elements.exportPreviewBtn) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.exportPreviewBtn, 
+                    'click', 
+                    () => {
+                        this.closePrintPreview();
+                        this.exportShoppingList();
+                    }
+                )
+            );
+        }
+
+        if (this.elements.cancelPreviewBtn) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.cancelPreviewBtn, 
+                    'click', 
+                    () => this.closePrintPreview()
                 )
             );
         }
@@ -1675,7 +1730,7 @@ Phát triển bởi Shopping Manager Team`;
         const header = document.createElement('div');
         header.className = 'print-header';
         header.innerHTML = `
-            <div class="print-title">PROCUREMENT LIST</div>
+            <div class="print-title">DANH SÁCH MUA SẮM</div>
             <div class="print-info">${hotelName} - ${formattedDate}</div>
         `;
 
@@ -1683,11 +1738,11 @@ Phát triển bởi Shopping Manager Team`;
         const sectionsContainer = document.createElement('div');
         sectionsContainer.className = 'print-sections';
 
-        // Section titles and icons
+        // Section titles in Vietnamese
         const sectionInfo = {
-            thit: { title: 'Meat & Poultry', icon: '' },
-            rau: { title: 'Vegetables & Produce', icon: '' },
-            dokho: { title: 'Dry Goods & Pantry', icon: '' }
+            thit: { title: 'THỊT & GIA CẦM', icon: '' },
+            rau: { title: 'RAU CỦ QUẢ', icon: '' },
+            dokho: { title: 'ĐỒ KHÔ & GIA VỊ', icon: '' }
         };
 
         // Create each section
@@ -1794,9 +1849,9 @@ Phát triển bởi Shopping Manager Team`;
      */
     createPrintableHTML(itemsBySection, hotelName, formattedDate) {
         const sectionInfo = {
-            thit: { title: 'Meat & Poultry', icon: '' },
-            rau: { title: 'Vegetables & Produce', icon: '' },
-            dokho: { title: 'Dry Goods & Pantry', icon: '' }
+            thit: { title: 'THỊT & GIA CẦM', icon: '' },
+            rau: { title: 'RAU CỦ QUẢ', icon: '' },
+            dokho: { title: 'ĐỒ KHÔ & GIA VỊ', icon: '' }
         };
 
         // Create sections HTML
@@ -1834,10 +1889,27 @@ Phát triển bởi Shopping Manager Team`;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh Sách Mua Sắm - ${hotelName} - ${formattedDate}</title>
     <style>
-        /* Optimized Print Styles for A4 Landscape */
+        /* Force A4 Landscape Printing - Enhanced for v3.0 */
         @page {
-            size: A4 landscape;
-            margin: 1.2cm 1cm;
+            size: 297mm 210mm; /* A4 landscape explicit dimensions */
+            margin: 15mm 10mm;
+            orientation: landscape;
+        }
+        
+        @media print {
+            @page {
+                size: 297mm 210mm !important;
+                margin: 15mm 10mm !important;
+                orientation: landscape !important;
+            }
+            
+            html, body {
+                width: 297mm !important;
+                height: 210mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
         }
         
         * {
@@ -1853,6 +1925,54 @@ Phát triển bởi Shopping Manager Team`;
             color: black;
             background: white;
             padding: 20px;
+        }
+        
+        .print-instructions {
+            background: #f0fdf4;
+            border: 2px solid #16a34a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-family: Arial, sans-serif;
+        }
+        
+        .print-instructions h2 {
+            color: #15803d;
+            margin-bottom: 15px;
+            font-size: 18pt;
+        }
+        
+        .print-instructions ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        
+        .print-instructions li {
+            margin-bottom: 8px;
+            font-size: 14pt;
+        }
+        
+        .print-button {
+            background: linear-gradient(135deg, #16a34a, #0d9488);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16pt;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .print-button:hover {
+            background: linear-gradient(135deg, #15803d, #0f766e);
+            transform: translateY(-1px);
+        }
+        
+        @media print {
+            .print-instructions {
+                display: none !important;
+            }
         }
         
         .print-container {
@@ -1997,11 +2117,20 @@ Phát triển bởi Shopping Manager Team`;
     </style>
 </head>
 <body>
-    <button class="print-button" onclick="window.print()">🖨️ In ngay</button>
+    <div class="print-instructions">
+        <h2>📄 Hướng dẫn in ngang (A4 Landscape)</h2>
+        <ol>
+            <li>Nhấn nút "In ngay" bên dưới</li>
+            <li>Trong cửa sổ in, chọn <strong>"Landscape" (Ngang)</strong> thay vì "Portrait" (Dọc)</li>
+            <li>Kiểm tra "Paper size: A4" để đảm bảo khổ giấy đúng</li>
+            <li>Nhấn "Print" để in</li>
+        </ol>
+        <button class="print-button" onclick="window.print()">🖨️ In ngay</button>
+    </div>
     
     <div class="print-container">
         <div class="print-header">
-            <div class="print-title">PROCUREMENT LIST</div>
+            <div class="print-title">DANH SÁCH MUA SẮM</div>
             <div class="print-info">${hotelName} - ${formattedDate}</div>
         </div>
         
@@ -2011,6 +2140,101 @@ Phát triển bởi Shopping Manager Team`;
     </div>
 </body>
 </html>`;
+    }
+
+    /**
+     * Show print preview modal
+     */
+    showPrintPreview() {
+        if (!this.isSelectionComplete()) {
+            Utils.showToast('Vui lòng chọn khách sạn, ngày và phân loại', 'warning');
+            return;
+        }
+
+        if (!this.currentState.currentItems || this.currentState.currentItems.length === 0) {
+            Utils.showToast('Không có sản phẩm nào để xem trước', 'warning');
+            return;
+        }
+
+        try {
+            // Group items by section
+            const itemsBySection = this.groupItemsBySection();
+
+            // Get hotel and date info for header
+            const hotelName = this.getHotelDisplayName(this.currentState.selectedHotel);
+            const formattedDate = Utils.formatDateForDisplay(this.currentState.selectedDate);
+
+            // Create preview content
+            const previewContent = this.createPrintPreview(itemsBySection, hotelName, formattedDate);
+
+            // Insert preview content
+            this.elements.printPreviewContent.innerHTML = previewContent;
+
+            // Show modal
+            this.elements.printPreviewModal.classList.add('active');
+        } catch (error) {
+            console.error('Print preview error:', error);
+            Utils.showToast('Lỗi khi tạo xem trước', 'error');
+        }
+    }
+
+    /**
+     * Create print preview content
+     */
+    createPrintPreview(itemsBySection, hotelName, formattedDate) {
+        const sectionInfo = {
+            thit: { title: 'THỊT & GIA CẦM', icon: '' },
+            rau: { title: 'RAU CỦ QUẢ', icon: '' },
+            dokho: { title: 'ĐỒ KHÔ & GIA VỊ', icon: '' }
+        };
+
+        let sectionsHTML = '';
+        Object.entries(itemsBySection).forEach(([sectionKey, items]) => {
+            let itemsHTML = '';
+            
+            if (items.length === 0) {
+                itemsHTML = '<li class="print-empty">Không có sản phẩm</li>';
+            } else {
+                items.forEach(item => {
+                    itemsHTML += `
+                        <li class="print-item">
+                            <span class="print-item-name">${Utils.sanitizeHtml(item.name)}</span>
+                            <span class="print-item-quantity">${item.quantity} ${item.unit}</span>
+                        </li>
+                    `;
+                });
+            }
+
+            sectionsHTML += `
+                <div class="print-section">
+                    <div class="print-section-title">${sectionInfo[sectionKey].title}</div>
+                    <ul class="print-items">
+                        ${itemsHTML}
+                    </ul>
+                </div>
+            `;
+        });
+
+        return `
+            <div class="print-container">
+                <div class="print-header">
+                    <div class="print-title">DANH SÁCH MUA SẮM</div>
+                    <div class="print-info">${hotelName} - ${formattedDate}</div>
+                </div>
+                
+                <div class="print-sections">
+                    ${sectionsHTML}
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Close print preview modal
+     */
+    closePrintPreview() {
+        this.elements.printPreviewModal.classList.remove('active');
+        this.elements.printPreviewContent.innerHTML = '';
     }
 }
 
