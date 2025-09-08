@@ -70,6 +70,25 @@ const Utils = {
     },
 
     /**
+     * Format date for display in Vietnamese format
+     * @param {string|Date} date - Date to format
+     * @returns {string} Formatted display date string
+     */
+    formatDateForDisplay(date) {
+        if (!date) return '';
+        
+        const dateObj = typeof date === 'string' ? new Date(date + 'T00:00:00') : date;
+        if (isNaN(dateObj.getTime())) return '';
+        
+        return dateObj.toLocaleDateString('vi-VN', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    },
+
+    /**
      * Get current date in YYYY-MM-DD format
      * @returns {string} Today's date
      */

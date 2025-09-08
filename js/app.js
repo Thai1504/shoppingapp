@@ -55,10 +55,10 @@ class ShoppingApp {
             
             this.showLoading(false);
             
-            Utils.showToast('Ứng dụng đã sẵn sàng!', 'success', 2000);
+            Utils.showToast('Application ready!', 'success', 2000);
         } catch (error) {
             console.error('Initialization error:', error);
-            Utils.showToast('Lỗi khởi tạo ứng dụng', 'error');
+            Utils.showToast('Application initialization error', 'error');
             this.showLoading(false);
         }
     }
@@ -77,6 +77,7 @@ class ShoppingApp {
         this.elements.selectedDate = document.getElementById('selectedDate');
         this.elements.todayBtn = document.getElementById('todayBtn');
         this.elements.printBtn = document.getElementById('printBtn');
+        this.elements.exportBtn = document.getElementById('exportBtn');
         this.elements.cleanupBtn = document.getElementById('cleanupBtn');
         this.elements.itemForm = document.getElementById('itemForm');
         this.elements.itemName = document.getElementById('itemName');
@@ -168,6 +169,16 @@ class ShoppingApp {
                     this.elements.printBtn, 
                     'click', 
                     () => this.printShoppingList()
+                )
+            );
+        }
+
+        if (this.elements.exportBtn) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.exportBtn, 
+                    'click', 
+                    () => this.exportShoppingList()
                 )
             );
         }
@@ -816,12 +827,12 @@ class ShoppingApp {
         const sellTotalDisplay = sellTotal;
         
         const buyCalculation = item.buyPrice ? 
-            `${buyPriceDisplay} × ${item.quantity}${item.unit} = ${buyTotalDisplay}` : 
-            `Chưa có giá`;
+            `${buyPriceDisplay} × ${item.quantity} ${item.unit} = ${buyTotalDisplay}` : 
+            `No price set`;
         
         const sellCalculation = item.sellPrice ? 
-            `${sellPriceDisplay} × ${item.quantity}${item.unit} = ${sellTotalDisplay}` : 
-            `Chưa có giá`;
+            `${sellPriceDisplay} × ${item.quantity} ${item.unit} = ${sellTotalDisplay}` : 
+            `No price set`;
 
         row.innerHTML = `
             <td class="col-checkbox">
@@ -854,15 +865,15 @@ class ShoppingApp {
                 <div class="total-calculation">${sellCalculation}</div>
             </td>
             <td class="col-actions">
-                <button class="btn btn-edit btn-sm" 
+                <button class="btn btn-secondary btn-sm" 
                         onclick="app.openEditModal('${item.id}')"
-                        title="Chỉnh sửa">
-                    ✏️
+                        title="Edit product">
+                    Edit
                 </button>
                 <button class="btn btn-danger btn-sm" 
                         onclick="app.deleteItem('${item.id}')"
-                        title="Xóa sản phẩm">
-                    🗑️
+                        title="Delete product">
+                    Delete
                 </button>
             </td>
         `;
@@ -1093,10 +1104,15 @@ class ShoppingApp {
             this.elements.addItemBtn.style.display = canShowContent ? 'flex' : 'none';
         }
 
-        // Show/hide print button based on whether there are items
+        // Show/hide print and export buttons based on whether there are items
         if (this.elements.printBtn) {
             const hasItems = canShowContent && this.currentState.currentItems && this.currentState.currentItems.length > 0;
             this.elements.printBtn.style.display = hasItems ? 'inline-flex' : 'none';
+        }
+
+        if (this.elements.exportBtn) {
+            const hasItems = canShowContent && this.currentState.currentItems && this.currentState.currentItems.length > 0;
+            this.elements.exportBtn.style.display = hasItems ? 'inline-flex' : 'none';
         }
     }
 
@@ -1659,7 +1675,7 @@ Phát triển bởi Shopping Manager Team`;
         const header = document.createElement('div');
         header.className = 'print-header';
         header.innerHTML = `
-            <div class="print-title">DANH SÁCH MUA SẮM</div>
+            <div class="print-title">PROCUREMENT LIST</div>
             <div class="print-info">${hotelName} - ${formattedDate}</div>
         `;
 
@@ -1669,9 +1685,9 @@ Phát triển bởi Shopping Manager Team`;
 
         // Section titles and icons
         const sectionInfo = {
-            thit: { title: 'Thịt', icon: '🥩' },
-            rau: { title: 'Rau', icon: '🥬' },
-            dokho: { title: 'Đồ khô', icon: '🌾' }
+            thit: { title: 'Meat & Poultry', icon: '' },
+            rau: { title: 'Vegetables & Produce', icon: '' },
+            dokho: { title: 'Dry Goods & Pantry', icon: '' }
         };
 
         // Create each section
@@ -1727,6 +1743,248 @@ Phát triển bởi Shopping Manager Team`;
             '49HG': '🏬 49HG'
         };
         return hotelNames[hotelCode] || hotelCode;
+    }
+
+    /**
+     * Export shopping list as HTML file for printing
+     */
+    exportShoppingList() {
+        if (!this.isSelectionComplete()) {
+            Utils.showToast('Vui lòng chọn khách sạn, ngày và phân loại', 'warning');
+            return;
+        }
+
+        if (!this.currentState.currentItems || this.currentState.currentItems.length === 0) {
+            Utils.showToast('Không có sản phẩm nào để xuất', 'warning');
+            return;
+        }
+
+        try {
+            // Group items by section
+            const itemsBySection = this.groupItemsBySection();
+
+            // Get hotel and date info for header
+            const hotelName = this.getHotelDisplayName(this.currentState.selectedHotel);
+            const formattedDate = Utils.formatDateForDisplay(this.currentState.selectedDate);
+
+            // Create HTML content
+            const htmlContent = this.createPrintableHTML(itemsBySection, hotelName, formattedDate);
+
+            // Create and download file
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `danh-sach-mua-sam-${this.currentState.selectedHotel}-${this.currentState.selectedDate}.html`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            Utils.showToast('Đã xuất file HTML thành công!', 'success');
+        } catch (error) {
+            console.error('Export error:', error);
+            Utils.showToast('Lỗi khi xuất file', 'error');
+        }
+    }
+
+    /**
+     * Create standalone HTML file for printing
+     */
+    createPrintableHTML(itemsBySection, hotelName, formattedDate) {
+        const sectionInfo = {
+            thit: { title: 'Meat & Poultry', icon: '' },
+            rau: { title: 'Vegetables & Produce', icon: '' },
+            dokho: { title: 'Dry Goods & Pantry', icon: '' }
+        };
+
+        // Create sections HTML
+        let sectionsHTML = '';
+        Object.entries(itemsBySection).forEach(([sectionKey, items]) => {
+            let itemsHTML = '';
+            
+            if (items.length === 0) {
+                itemsHTML = '<li class="print-empty">Không có sản phẩm</li>';
+            } else {
+                items.forEach(item => {
+                    itemsHTML += `
+                        <li class="print-item">
+                            <span class="print-item-name">${Utils.sanitizeHtml(item.name)}</span>
+                            <span class="print-item-quantity">${item.quantity} ${item.unit}</span>
+                        </li>
+                    `;
+                });
+            }
+
+            sectionsHTML += `
+                <div class="print-section">
+                    <div class="print-section-title">${sectionInfo[sectionKey].title}</div>
+                    <ul class="print-items">
+                        ${itemsHTML}
+                    </ul>
+                </div>
+            `;
+        });
+
+        return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Mua Sắm - ${hotelName} - ${formattedDate}</title>
+    <style>
+        /* Print-specific styles */
+        @page {
+            size: A4 landscape;
+            margin: 1.5cm 1cm;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 14pt;
+            line-height: 1.4;
+            color: black;
+            background: white;
+            padding: 20px;
+        }
+        
+        .print-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .print-header {
+            text-align: center;
+            margin-bottom: 20pt;
+            border-bottom: 2pt solid #333;
+            padding-bottom: 10pt;
+        }
+        
+        .print-title {
+            font-size: 24pt;
+            font-weight: bold;
+            margin-bottom: 5pt;
+        }
+        
+        .print-info {
+            font-size: 14pt;
+            color: #666;
+        }
+        
+        .print-sections {
+            display: flex;
+            flex: 1;
+            gap: 20pt;
+            margin-top: 10pt;
+        }
+        
+        .print-section {
+            flex: 1;
+            border: 2pt solid #333;
+            padding: 12pt;
+            background: #fafafa;
+            page-break-inside: avoid;
+        }
+        
+        .print-section-title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 12pt;
+            padding: 8pt;
+            background: #333;
+            color: white;
+            border-radius: 3pt;
+        }
+        
+        .print-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .print-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8pt 0;
+            border-bottom: 1pt dotted #ccc;
+            font-size: 14pt;
+        }
+        
+        .print-item:last-child {
+            border-bottom: none;
+        }
+        
+        .print-item-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .print-item-quantity {
+            font-weight: bold;
+            color: #333;
+            margin-left: 10pt;
+            white-space: nowrap;
+        }
+        
+        .print-empty {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 20pt 0;
+        }
+        
+        /* Print button for the HTML file */
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        
+        .print-button:hover {
+            background: #0056b3;
+        }
+        
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">🖨️ In ngay</button>
+    
+    <div class="print-container">
+        <div class="print-header">
+            <div class="print-title">PROCUREMENT LIST</div>
+            <div class="print-info">${hotelName} - ${formattedDate}</div>
+        </div>
+        
+        <div class="print-sections">
+            ${sectionsHTML}
+        </div>
+    </div>
+</body>
+</html>`;
     }
 }
 
