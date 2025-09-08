@@ -123,7 +123,7 @@ body {
 @media (max-width: 768px) {
     .container {
         padding: 0 var(--space-3);
-        padding-top: 140px;
+        padding-top: 160px;
         padding-bottom: var(--space-6);
     }
 }
@@ -161,6 +161,56 @@ body {
         gap: var(--space-2);
         padding: var(--space-2) var(--space-3);
         min-height: 48px;
+    }
+    
+    /* First row - stack buttons vertically on very small screens */
+    .nav-row:first-child {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+    }
+    
+    /* Date input takes full width */
+    .nav-row:first-child .nav-input {
+        width: 100%;
+        margin-bottom: var(--space-2);
+    }
+    
+    /* Mobile button group - horizontal layout */
+    .mobile-button-group {
+        display: flex;
+        gap: var(--space-2);
+        width: 100%;
+    }
+    
+    .mobile-button-group .btn {
+        flex: 1;
+        min-width: 0;
+        font-size: var(--font-size-xs);
+        padding: var(--space-2) var(--space-1);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Show/hide mobile text */
+    .mobile-hide {
+        display: none;
+    }
+    
+    .mobile-show {
+        display: inline;
+    }
+}
+
+/* Desktop - show full text, hide mobile text */
+@media (min-width: 769px) {
+    .mobile-hide {
+        display: inline;
+    }
+    
+    .mobile-show {
+        display: none;
     }
 }
 
@@ -393,6 +443,9 @@ body {
         flex-direction: column;
         align-items: stretch;
         gap: var(--space-3);
+        margin: 0 -var(--space-3) var(--space-4) -var(--space-3);
+        border-radius: 0;
+        padding: var(--space-4) var(--space-3);
     }
 }
 
@@ -595,6 +648,10 @@ body {
     .add-item-btn {
         bottom: var(--space-4);
         right: var(--space-4);
+        padding: var(--space-4) var(--space-5);
+        font-size: var(--font-size-base);
+        min-height: 48px;
+        min-width: 140px;
     }
 }
 
@@ -1035,18 +1092,87 @@ body {
         padding: var(--space-3) var(--space-4);
     }
     
+    /* Better mobile table layout */
+    .table-container {
+        margin: 0 -var(--space-3);
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+    
     .items-table {
-        font-size: var(--font-size-xs);
+        font-size: var(--font-size-sm);
+        min-width: 100%;
     }
     
     .items-table th,
     .items-table td {
-        padding: var(--space-2) var(--space-3);
+        padding: var(--space-3) var(--space-2);
+        font-size: var(--font-size-sm);
+    }
+    
+    /* Make checkbox and action columns touch-friendly */
+    .items-table th.col-checkbox,
+    .items-table td.col-checkbox {
+        width: 44px;
+        min-width: 44px;
+    }
+    
+    .items-table th.col-actions,
+    .items-table td.col-actions {
+        width: 100px;
+        min-width: 100px;
+    }
+    
+    /* Larger touch targets for mobile */
+    .items-table .checkbox {
+        width: 20px;
+        height: 20px;
+        margin: 0 auto;
+    }
+    
+    .items-table .btn {
+        min-width: 36px;
+        min-height: 36px;
+        padding: var(--space-2);
+        font-size: var(--font-size-xs);
     }
     
     .btn {
         font-size: var(--font-size-xs);
         padding: var(--space-2) var(--space-3);
+    }
+    
+    /* Enhanced touch targets and interactions */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        min-height: 44px;
+        font-size: var(--font-size-base);
+        padding: var(--space-3) var(--space-4);
+    }
+    
+    /* Modal optimizations for mobile */
+    .modal-content {
+        margin: var(--space-2);
+        max-height: calc(100vh - var(--space-4));
+        overflow-y: auto;
+    }
+    
+    /* Form improvements */
+    .form-group {
+        margin-bottom: var(--space-4);
+    }
+    
+    .form-row-compact .form-group {
+        margin-bottom: var(--space-3);
+    }
+    
+    /* Better checkbox visibility */
+    .checkbox {
+        transform: scale(1.2);
     }
 }
 

@@ -22,10 +22,18 @@
             <!-- Date Selection -->
             <div class="nav-row">
                 <input type="date" id="selectedDate" class="nav-input" required>
-                <button id="todayBtn" class="btn btn-today">Hôm nay</button>
-                <button id="printBtn" class="btn btn-print" title="In danh sách mua sắm" style="display: none;">In danh sách</button>
-                <button id="exportBtn" class="btn btn-export" title="Xuất file HTML" style="display: none;">Xuất file</button>
-                <button id="cleanupBtn" class="btn btn-icon" title="Dọn dẹp dữ liệu">⚙</button>
+                <div class="mobile-button-group">
+                    <button id="todayBtn" class="btn btn-today">Hôm nay</button>
+                    <button id="printBtn" class="btn btn-print" title="In danh sách mua sắm" style="display: none;">
+                        <span class="mobile-hide">In danh sách</span>
+                        <span class="mobile-show">In</span>
+                    </button>
+                    <button id="exportBtn" class="btn btn-export" title="Xuất file HTML" style="display: none;">
+                        <span class="mobile-hide">Xuất file</span>
+                        <span class="mobile-show">Xuất</span>
+                    </button>
+                    <button id="cleanupBtn" class="btn btn-icon" title="Dọn dẹp dữ liệu">⚙</button>
+                </div>
             </div>
 
             <!-- Hotel Selection -->
