@@ -76,6 +76,7 @@ class ShoppingApp {
         // Form elements
         this.elements.selectedDate = document.getElementById('selectedDate');
         this.elements.todayBtn = document.getElementById('todayBtn');
+        this.elements.printBtn = document.getElementById('printBtn');
         this.elements.cleanupBtn = document.getElementById('cleanupBtn');
         this.elements.itemForm = document.getElementById('itemForm');
         this.elements.itemName = document.getElementById('itemName');
@@ -157,6 +158,16 @@ class ShoppingApp {
                     this.elements.todayBtn, 
                     'click', 
                     () => this.setToday()
+                )
+            );
+        }
+
+        if (this.elements.printBtn) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.printBtn, 
+                    'click', 
+                    () => this.printShoppingList()
                 )
             );
         }
@@ -1081,6 +1092,12 @@ class ShoppingApp {
         if (this.elements.addItemBtn) {
             this.elements.addItemBtn.style.display = canShowContent ? 'flex' : 'none';
         }
+
+        // Show/hide print button based on whether there are items
+        if (this.elements.printBtn) {
+            const hasItems = canShowContent && this.currentState.currentItems && this.currentState.currentItems.length > 0;
+            this.elements.printBtn.style.display = hasItems ? 'inline-flex' : 'none';
+        }
     }
 
     /**
@@ -1562,6 +1579,154 @@ Phát triển bởi Shopping Manager Team`;
             console.error('Cleanup error:', error);
             Utils.showToast('Lỗi khi xóa dữ liệu', 'error');
         }
+    }
+
+    /**
+     * Print shopping list in A4 landscape format with 3 columns
+     */
+    printShoppingList() {
+        if (!this.isSelectionComplete()) {
+            Utils.showToast('Vui lòng chọn khách sạn, ngày và phân loại', 'warning');
+            return;
+        }
+
+        if (!this.currentState.currentItems || this.currentState.currentItems.length === 0) {
+            Utils.showToast('Không có sản phẩm nào để in', 'warning');
+            return;
+        }
+
+        try {
+            // Group items by section
+            const itemsBySection = this.groupItemsBySection();
+
+            // Get hotel and date info for header
+            const hotelName = this.getHotelDisplayName(this.currentState.selectedHotel);
+            const formattedDate = Utils.formatDateForDisplay(this.currentState.selectedDate);
+
+            // Create print content
+            const printContainer = this.createPrintContainer(itemsBySection, hotelName, formattedDate);
+
+            // Add to body temporarily for printing
+            document.body.appendChild(printContainer);
+
+            // Trigger print
+            window.print();
+
+            // Remove print container after printing
+            setTimeout(() => {
+                document.body.removeChild(printContainer);
+            }, 100);
+
+            Utils.showToast('Đã gửi danh sách đến máy in', 'success');
+        } catch (error) {
+            console.error('Print error:', error);
+            Utils.showToast('Lỗi khi in danh sách', 'error');
+        }
+    }
+
+    /**
+     * Group current items by section (thit, rau, dokho)
+     */
+    groupItemsBySection() {
+        const grouped = {
+            thit: [],
+            rau: [], 
+            dokho: []
+        };
+
+        // Get all items for current hotel and date across all sections
+        const allSections = ['thit', 'rau', 'dokho'];
+        allSections.forEach(section => {
+            const items = DataManager.getItems(
+                this.currentState.selectedHotel,
+                this.currentState.selectedDate,
+                section
+            );
+            grouped[section] = items.filter(item => !item.isDone); // Only print incomplete items
+        });
+
+        return grouped;
+    }
+
+    /**
+     * Create print container with formatted content
+     */
+    createPrintContainer(itemsBySection, hotelName, formattedDate) {
+        const container = document.createElement('div');
+        container.className = 'print-container';
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'print-header';
+        header.innerHTML = `
+            <div class="print-title">DANH SÁCH MUA SẮM</div>
+            <div class="print-info">${hotelName} - ${formattedDate}</div>
+        `;
+
+        // Sections container
+        const sectionsContainer = document.createElement('div');
+        sectionsContainer.className = 'print-sections';
+
+        // Section titles and icons
+        const sectionInfo = {
+            thit: { title: 'Thịt', icon: '🥩' },
+            rau: { title: 'Rau', icon: '🥬' },
+            dokho: { title: 'Đồ khô', icon: '🌾' }
+        };
+
+        // Create each section
+        Object.entries(itemsBySection).forEach(([sectionKey, items]) => {
+            const section = document.createElement('div');
+            section.className = 'print-section';
+
+            // Section title
+            const title = document.createElement('div');
+            title.className = 'print-section-title';
+            title.innerHTML = `${sectionInfo[sectionKey].icon} ${sectionInfo[sectionKey].title}`;
+
+            // Items list
+            const itemsList = document.createElement('ul');
+            itemsList.className = 'print-items';
+
+            if (items.length === 0) {
+                const emptyItem = document.createElement('li');
+                emptyItem.className = 'print-empty';
+                emptyItem.textContent = 'Không có sản phẩm';
+                itemsList.appendChild(emptyItem);
+            } else {
+                items.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'print-item';
+                    listItem.innerHTML = `
+                        <span class="print-item-name">${Utils.sanitizeHtml(item.name)}</span>
+                        <span class="print-item-quantity">${item.quantity} ${item.unit}</span>
+                    `;
+                    itemsList.appendChild(listItem);
+                });
+            }
+
+            section.appendChild(title);
+            section.appendChild(itemsList);
+            sectionsContainer.appendChild(section);
+        });
+
+        container.appendChild(header);
+        container.appendChild(sectionsContainer);
+
+        return container;
+    }
+
+    /**
+     * Get hotel display name
+     */
+    getHotelDisplayName(hotelCode) {
+        const hotelNames = {
+            '36LS': '🏨 36LS',
+            '16TX': '🏩 16TX', 
+            '55HT': '🏪 55HT',
+            '49HG': '🏬 49HG'
+        };
+        return hotelNames[hotelCode] || hotelCode;
     }
 }
 
