@@ -2123,7 +2123,7 @@ Phát triển bởi Shopping Manager Team`;
         
         .print-table th { display: none; }
         
-        .print-table td { border: none; padding: 4pt 6pt; vertical-align: top; font-size: 20pt; color: black; line-height: 1.05; }
+        .print-table td { border: none; padding: 4pt 6pt; vertical-align: top; font-size: 18pt; color: black; line-height: 1.05; }
         
         .print-table .col-checkbox {
             width: 30px;
@@ -2134,15 +2134,15 @@ Phát triển bởi Shopping Manager Team`;
         
         .print-table .col-name {
             width: 60%;
-            font-weight: 700;
-            font-size: 20pt;
+            font-weight: 400;
+            font-size: 18pt;
         }
         
         .print-table .col-quantity {
             width: 30%;
             text-align: center;
-            font-weight: 700;
-            font-size: 20pt;
+            font-weight: 400;
+            font-size: 18pt;
         }
         
         .print-empty {
@@ -2213,7 +2213,6 @@ Phát triển bởi Shopping Manager Team`;
                 const lineTotal = Utils.parseNumber(item.quantity) * unitPrice;
                 grandTotal += lineTotal;
                 rows.push({
-                    section: sectionTitle[sec],
                     name: item.name,
                     qty: item.quantity,
                     unit: item.unit,
@@ -2227,7 +2226,6 @@ Phát triển bởi Shopping Manager Team`;
             <tr><td colspan="6" class="empty">Không có sản phẩm</td></tr>
         ` : rows.map(r => `
             <tr>
-                <td class="col-section">${Utils.sanitizeHtml(r.section)}</td>
                 <td class="col-name">${Utils.sanitizeHtml(r.name)}</td>
                 <td class="col-qty num">${r.qty}</td>
                 <td class="col-unit">${r.unit}</td>
@@ -2250,12 +2248,12 @@ Phát triển bởi Shopping Manager Team`;
         .title { font-size: 20pt; font-weight: 700; }
         .sub { font-size: 12pt; font-weight: 600; }
         table { width: 100%; border-collapse: collapse; border-spacing: 0; font-size: 12pt; table-layout: fixed; }
-        colgroup col.col-section { width: 10%; }
-        colgroup col.col-name { width: 42%; }
-        colgroup col.col-qty { width: 6%; }
+        /* Rebalanced widths without 'Danh mục' */
+        colgroup col.col-name { width: 54%; }
+        colgroup col.col-qty { width: 8%; }
         colgroup col.col-unit { width: 8%; }
         colgroup col.col-unit-price { width: 14%; }
-        colgroup col.col-line-total { width: 20%; }
+        colgroup col.col-line-total { width: 16%; }
         thead th { text-align: left; border-bottom: 1px solid #000; padding: 6pt 4pt; font-weight: 700; white-space: nowrap; }
         td { padding: 6pt 4pt; vertical-align: top; overflow: hidden; text-overflow: ellipsis; }
         th, td { border-right: 1px solid #ddd; }
@@ -2271,8 +2269,8 @@ Phát triển bởi Shopping Manager Team`;
         td.col-qty, td.col-unit-price, td.col-line-total { padding-right: 0; }
         th.col-qty, th.col-unit-price, th.col-line-total { padding-right: 0; text-align: right; }
         /* Pull text slightly away from left separator for the first two columns */
-        td.col-section, td.col-name { padding-left: 2pt; }
-        th.col-section, th.col-name { padding-left: 2pt; }
+        td.col-name { padding-left: 2pt; }
+        th.col-name { padding-left: 2pt; }
         tfoot td { border-top: 1px solid #000; font-weight: 800; padding-top: 8pt; }
         .empty { text-align: center; padding: 20pt 0; color: #666; font-style: italic; }
     </style>
@@ -2284,7 +2282,6 @@ Phát triển bởi Shopping Manager Team`;
         </div>
         <table>
             <colgroup>
-                <col class="col-section" />
                 <col class="col-name" />
                 <col class="col-qty" />
                 <col class="col-unit" />
@@ -2293,7 +2290,6 @@ Phát triển bởi Shopping Manager Team`;
             </colgroup>
             <thead>
                 <tr>
-                    <th class="col-section">Danh mục</th>
                     <th class="col-name">Sản phẩm</th>
                     <th class="col-qty" style="text-align:right;">SL</th>
                     <th class="col-unit" style="text-align:center;">ĐV</th>
