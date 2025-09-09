@@ -25,7 +25,8 @@ const DataManager = {
             itemPool: {
                 thit: [],
                 rau: [],
-                dokho: []
+                dokho: [],
+                hoaqua: []
             },
             settings: {
                 autoSave: true,
@@ -423,7 +424,7 @@ const DataManager = {
         }
 
         // Ensure all sections exist in item pool
-        ['thit', 'rau', 'dokho'].forEach(section => {
+        ['thit', 'rau', 'dokho', 'hoaqua'].forEach(section => {
             if (!Array.isArray(fixed.itemPool[section])) {
                 fixed.itemPool[section] = [];
             }

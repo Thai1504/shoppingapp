@@ -7,6 +7,19 @@
     box-sizing: border-box;
 }
 
+/* Compact 4-column preview layout used by print preview */
+.print-preview-iframe .print-sections.print-sections-compact {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+    height: auto;
+}
+
+@media print {
+    /* Ensure any toasts are hidden when printing */
+    .toast-container { display: none !important; visibility: hidden !important; }
+}
+
 /* Vietnamese Market Design System - Fresh Green/Teal Theme */
 :root {
     /* Primary Green Palette - Fresh Vegetable Market */
@@ -208,7 +221,7 @@ body {
         padding: var(--space-3) var(--space-4);
         min-height: 56px;
     }
-    
+
     .nav-row-compact {
         flex-direction: column;
         align-items: stretch;
@@ -216,40 +229,40 @@ body {
         padding: var(--space-1) var(--space-2);
         min-height: auto;
     }
-    
+
     .nav-row-compact:first-child {
         flex-direction: row;
         gap: var(--space-2);
     }
-    
+
     .nav-row-compact .nav-input,
     .nav-row-compact .nav-select {
         flex: 1;
         min-width: 0;
     }
-    
+
     .nav-row-compact:last-child {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
     }
-    
+
     .section-tabs {
         flex: 1;
         width: 100%;
     }
-    
+
     .action-buttons .btn {
         padding: var(--space-2) var(--space-2);
         font-size: var(--font-size-xs);
         min-height: 32px;
         min-width: 40px;
     }
-    
+
     .mobile-hide {
         display: none;
     }
-    
+
     .mobile-show {
         display: inline;
     }
@@ -259,7 +272,7 @@ body {
     .mobile-hide {
         display: inline;
     }
-    
+
     .mobile-show {
         display: none;
     }
@@ -482,6 +495,7 @@ body {
     gap: var(--space-6);
     align-items: center;
     border: 1px solid var(--border-medium);
+    margin-top: 25px !important;
 }
 
 @media (max-width: 768px) {
@@ -585,22 +599,22 @@ body {
         padding: var(--space-2) var(--space-1);
         font-size: var(--font-size-xs);
     }
-    
+
     .items-table th.col-controls,
     .items-table td.col-controls {
         width: 70px;
     }
-    
+
     .items-table th.col-name-unit,
     .items-table td.col-name-unit {
         width: 150px;
     }
-    
+
     .items-table th.col-total:first-of-type,
     .items-table td.col-total:first-of-type {
         width: 100px;
     }
-    
+
     .items-table th.col-total:last-of-type,
     .items-table td.col-total:last-of-type {
         width: 100px;
@@ -762,31 +776,31 @@ body {
         gap: var(--space-2);
         align-items: stretch;
     }
-    
+
     .footer-totals {
         justify-content: center;
         gap: var(--space-3);
         font-size: var(--font-size-sm);
     }
-    
+
     .footer-actions {
         justify-content: center;
     }
-    
+
     .footer-actions .btn {
         flex: 1;
         min-width: 0;
         padding: var(--space-2);
         font-size: var(--font-size-xs);
     }
-    
+
     .footer-actions .btn-primary {
         flex: 2;
         padding: var(--space-2) var(--space-4);
         font-size: var(--font-size-sm);
         min-height: 44px;
     }
-    
+
     .footer-actions .btn-print,
     .footer-actions .btn-export {
         flex: 1;
@@ -891,7 +905,7 @@ body {
         gap: var(--space-3);
         margin-bottom: var(--space-4);
     }
-    
+
     .form-row-compact .form-group {
         margin-bottom: var(--space-3);
     }
@@ -1114,10 +1128,15 @@ body {
 
 .print-preview-iframe .print-section {
     flex: 1;
-    border: 2px solid var(--market-green-600);
-    border-radius: var(--radius-md);
+    border: none;
+    border-right: 2px solid var(--market-green-600);
+    border-radius: 0;
     padding: var(--space-3);
     background: var(--bg-primary);
+}
+
+.print-preview-iframe .print-section:nth-child(4n) {
+    border-right: none;
 }
 
 .print-preview-iframe .print-section-title {
@@ -1138,21 +1157,13 @@ body {
     font-size: var(--font-size-xs);
 }
 
-.print-preview-iframe .print-table th {
-    background: var(--market-green-100);
-    border: 1px solid var(--border-medium);
-    padding: var(--space-1);
-    font-weight: var(--font-weight-bold);
-    font-size: 10px;
-    text-align: left;
-    color: var(--market-green-800);
-}
+.print-preview-iframe .print-table th { display: none; }
 
 .print-preview-iframe .print-table td {
-    border: 1px solid var(--border-medium);
+    border: none;
     padding: 2px 4px;
     vertical-align: top;
-    font-size: 10px;
+    font-size: var(--font-size-xs);
 }
 
 .print-preview-iframe .print-table .col-checkbox {
@@ -1393,7 +1404,7 @@ body {
         margin: 15mm 10mm;
         orientation: landscape;
     }
-    
+
     /* Reset print layout */
     * {
         box-shadow: none !important;
@@ -1402,7 +1413,7 @@ body {
         background: transparent !important;
         border: none !important;
     }
-    
+
     html, body {
         width: 297mm !important;
         height: 210mm !important;
@@ -1414,7 +1425,7 @@ body {
         margin: 0 !important;
         padding: 0 !important;
     }
-    
+
     /* Hide all non-print elements */
     .sticky-nav,
     .search-section,
@@ -1428,7 +1439,7 @@ body {
     .totals-actions {
         display: none !important;
     }
-    
+
     /* Print container takes full space */
     .print-container {
         position: absolute !important;
@@ -1444,99 +1455,96 @@ body {
         margin: 0 !important;
         page-break-after: avoid !important;
     }
-    
-    /* Print header */
+
+    /* Print header - compact */
     .print-header {
-        text-align: center !important;
-        margin-bottom: 20px !important;
-        border-bottom: 3px solid black !important;
-        padding-bottom: 15px !important;
-    }
-    
-    .print-title {
-        font-size: 24pt !important;
-        font-weight: bold !important;
-        color: black !important;
+        text-align: left !important;
         margin-bottom: 8px !important;
-        letter-spacing: 1px !important;
-        text-transform: uppercase !important;
+        border-bottom: 1px solid black !important;
+        padding-bottom: 6px !important;
     }
-    
+
+    .print-title { display: none !important; }
+
     .print-info {
-        font-size: 16pt !important;
+        font-size: 12pt !important;
         color: black !important;
         font-weight: bold !important;
     }
-    
-    /* Print sections in 3 columns with tables */
+
+    /* Print sections in 4 compact columns */
     .print-sections {
-        display: flex !important;
-        flex: 1 !important;
-        gap: 15px !important;
-        height: calc(100% - 80px) !important;
-        align-items: flex-start !important;
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 10px !important;
+        height: calc(100% - 40px) !important;
+        align-items: start !important;
     }
-    
+
     .print-section {
-        flex: 1 !important;
         height: 100% !important;
-        border: 2px solid black !important;
-        border-radius: 8px !important;
-        padding: 10px !important;
+        border: none !important;
+        border-right: 1px solid black !important;
+        border-radius: 0 !important;
+        padding: 6px !important;
         background: white !important;
         page-break-inside: avoid !important;
     }
-    
+
+    .print-section:nth-child(4n) {
+        border-right: none !important;
+    }
+
     .print-section-title {
-        font-size: 16pt !important;
+        font-size: 12pt !important;
         font-weight: bold !important;
         color: black !important;
         text-align: center !important;
-        margin-bottom: 10px !important;
-        padding-bottom: 8px !important;
-        border-bottom: 2px solid black !important;
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+        border-bottom: 1px solid black !important;
         text-transform: uppercase !important;
     }
-    
+
     .print-table {
         width: 100% !important;
         border-collapse: collapse !important;
-        font-size: 11pt !important;
-        height: calc(100% - 50px) !important;
+        font-size: 10pt !important;
+        height: auto !important;
     }
-    
+
     .print-table thead {
         display: none !important;
     }
-    
+
     .print-table th {
         display: none !important;
     }
-    
+
     .print-table td {
-        border: 1px solid black !important;
-        padding: 4px 6px !important;
+        border: none !important;
+        padding: 4px !important;
         vertical-align: top !important;
-        font-size: 11pt !important;
+        font-size: 10pt !important;
     }
-    
+
     .print-table .col-checkbox {
         width: 30px !important;
         text-align: center !important;
         font-size: 14pt !important;
     }
-    
+
     .print-table .col-name {
         width: 60% !important;
         font-weight: bold !important;
     }
-    
+
     .print-table .col-quantity {
         width: 30% !important;
         text-align: center !important;
         font-weight: bold !important;
     }
-    
+
     .print-empty {
         text-align: center !important;
         color: #666 !important;
@@ -1544,7 +1552,7 @@ body {
         font-size: 12pt !important;
         margin-top: 30px !important;
     }
-    
+
     /* Print footer */
     .print-footer {
         position: absolute !important;

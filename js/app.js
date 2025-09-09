@@ -681,6 +681,18 @@ class ShoppingApp {
                 { name: 'Ngũ Cốc Milo', unit: 'hộp', suggestedBuyPrice: 100, suggestedSellPrice: 100 },
                 { name: 'Ngũ Cốc Ngô To', unit: 'hộp', suggestedBuyPrice: 125, suggestedSellPrice: 125 },
                 { name: 'Ngũ Cốc Ngô Nhỏ', unit: 'hộp', suggestedBuyPrice: 85, suggestedSellPrice: 85 }
+            ],
+            hoaqua: [
+                { name: 'Táo', unit: 'kg', suggestedBuyPrice: 80, suggestedSellPrice: 80 },
+                { name: 'Chuối', unit: 'nải', suggestedBuyPrice: 30, suggestedSellPrice: 30 },
+                { name: 'Cam', unit: 'kg', suggestedBuyPrice: 45, suggestedSellPrice: 45 },
+                { name: 'Quýt', unit: 'kg', suggestedBuyPrice: 40, suggestedSellPrice: 40 },
+                { name: 'Xoài', unit: 'kg', suggestedBuyPrice: 25, suggestedSellPrice: 25 },
+                { name: 'Nho', unit: 'kg', suggestedBuyPrice: 120, suggestedSellPrice: 120 },
+                { name: 'Dưa hấu', unit: 'kg', suggestedBuyPrice: 16, suggestedSellPrice: 16 },
+                { name: 'Bưởi', unit: 'quả', suggestedBuyPrice: 35, suggestedSellPrice: 35 },
+                { name: 'Dưa vàng', unit: 'kg', suggestedBuyPrice: 25, suggestedSellPrice: 25 },
+                { name: 'Lê', unit: 'kg', suggestedBuyPrice: 70, suggestedSellPrice: 70 }
             ]
         };
 
@@ -1770,8 +1782,7 @@ Phát triển bởi Shopping Manager Team`;
             setTimeout(() => {
                 document.body.removeChild(printContainer);
             }, 100);
-
-            Utils.showToast('Đã gửi danh sách đến máy in', 'success');
+            // Do not show a toast after printing to avoid overlaying the UI
         } catch (error) {
             console.error('Print error:', error);
             Utils.showToast('Lỗi khi in danh sách', 'error');
@@ -1785,11 +1796,12 @@ Phát triển bởi Shopping Manager Team`;
         const grouped = {
             thit: [],
             rau: [], 
-            dokho: []
+            dokho: [],
+            hoaqua: []
         };
 
         // Get all items for current hotel and date across all sections
-        const allSections = ['thit', 'rau', 'dokho'];
+        const allSections = ['thit', 'rau', 'dokho', 'hoaqua'];
         allSections.forEach(section => {
             const items = DataManager.getItems(
                 this.currentState.selectedHotel,
@@ -1809,11 +1821,10 @@ Phát triển bởi Shopping Manager Team`;
         const container = document.createElement('div');
         container.className = 'print-container';
 
-        // Header
+        // Header - compact
         const header = document.createElement('div');
         header.className = 'print-header';
         header.innerHTML = `
-            <div class="print-title">DANH SÁCH MUA SẮM</div>
             <div class="print-info">${hotelName} - ${formattedDate}</div>
         `;
 
@@ -1824,8 +1835,9 @@ Phát triển bởi Shopping Manager Team`;
         // Section titles in Vietnamese
         const sectionInfo = {
             thit: { title: 'THỊT & GIA CẦM', icon: '' },
-            rau: { title: 'RAU CỦ QUẢ', icon: '' },
-            dokho: { title: 'ĐỒ KHÔ & GIA VỊ', icon: '' }
+            rau: { title: 'RAU CỦ', icon: '' },
+            dokho: { title: 'ĐỒ KHÔ & GIA VỊ', icon: '' },
+            hoaqua: { title: 'HOA QUẢ', icon: '' }
         };
 
         // Create each section
@@ -1842,28 +1854,20 @@ Phát triển bởi Shopping Manager Team`;
             const table = document.createElement('table');
             table.className = 'print-table';
 
-            // Table header
-            const thead = document.createElement('thead');
-            thead.innerHTML = `
-                <tr>
-                    <th class="col-checkbox">☐</th>
-                    <th class="col-name">Sản phẩm</th>
-                    <th class="col-quantity">Số lượng</th>
-                </tr>
-            `;
-            table.appendChild(thead);
-
             // Table body
             const tbody = document.createElement('tbody');
             
-            if (items.length === 0) {
+            // Limit rows per section to keep to ~20 visible items
+            const limited = items.slice(0, 20);
+
+            if (limited.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="3" class="print-empty">Không có sản phẩm</td>
                     </tr>
                 `;
             } else {
-                items.forEach(item => {
+                limited.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="col-checkbox">☐</td>
@@ -1950,8 +1954,9 @@ Phát triển bởi Shopping Manager Team`;
     createPrintableHTML(itemsBySection, hotelName, formattedDate) {
         const sectionInfo = {
             thit: { title: 'THỊT & GIA CẦM', icon: '' },
-            rau: { title: 'RAU CỦ QUẢ', icon: '' },
-            dokho: { title: 'ĐỒ KHÔ & GIA VỊ', icon: '' }
+            rau: { title: 'RAU CỦ', icon: '' },
+            dokho: { title: 'ĐỒ KHÔ & GIA VỊ', icon: '' },
+            hoaqua: { title: 'HOA QUẢ', icon: '' }
         };
 
         // Create sections HTML
@@ -1959,14 +1964,16 @@ Phát triển bởi Shopping Manager Team`;
         Object.entries(itemsBySection).forEach(([sectionKey, items]) => {
             let itemsHTML = '';
             
-            if (items.length === 0) {
+            const limited = items.slice(0, 20);
+
+            if (limited.length === 0) {
                 itemsHTML = `
                     <tr>
                         <td colspan="3" class="print-empty">Không có sản phẩm</td>
                     </tr>
                 `;
             } else {
-                items.forEach(item => {
+                limited.forEach(item => {
                     itemsHTML += `
                         <tr>
                             <td class="col-checkbox">☐</td>
@@ -2090,79 +2097,22 @@ Phát triển bởi Shopping Manager Team`;
             page-break-inside: avoid;
         }
         
-        .print-header {
-            text-align: center;
-            margin-bottom: 25pt;
-            border-bottom: 3pt solid #333;
-            padding-bottom: 15pt;
-        }
+        .print-header { text-align: left; margin-bottom: 8pt; padding-bottom: 6pt; border-bottom: 1pt solid #333; }
+        .print-info { font-size: 12pt; color: #000; font-weight: 600; }
         
-        .print-title {
-            font-size: 28pt;
-            font-weight: bold;
-            margin-bottom: 8pt;
-            letter-spacing: 1pt;
-        }
+        .print-sections { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10pt; margin-top: 8pt; }
         
-        .print-info {
-            font-size: 16pt;
-            color: #444;
-            font-weight: 500;
-        }
+        /* Vertical separators only between 4 columns */
+        .print-section { border: none; border-right: 1pt solid #333; padding: 6pt; background: #fff; border-radius: 0; page-break-inside: avoid; min-height: 160pt; }
+        .print-section:nth-child(4n) { border-right: none; }
         
-        .print-sections {
-            display: flex;
-            flex: 1;
-            gap: 25pt;
-            margin-top: 15pt;
-        }
+        .print-section-title { font-size: 12pt; font-weight: 700; text-align: center; margin-bottom: 6pt; padding: 4pt; background: #eee; color: #000; border-radius: 2pt; letter-spacing: 0.3pt; }
         
-        .print-section {
-            flex: 1;
-            border: 2pt solid #333;
-            padding: 15pt;
-            background: #fafafa;
-            border-radius: 4pt;
-            page-break-inside: avoid;
-            min-height: 200pt;
-        }
+        .print-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
         
-        .print-section-title {
-            font-size: 20pt;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 15pt;
-            padding: 10pt;
-            background: #333;
-            color: white;
-            border-radius: 4pt;
-            letter-spacing: 0.5pt;
-        }
+        .print-table th { display: none; }
         
-        .print-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12pt;
-            height: calc(100% - 50px);
-        }
-        
-        .print-table th {
-            background: #f0f0f0;
-            border: 1pt solid black;
-            padding: 6pt;
-            font-weight: bold;
-            font-size: 11pt;
-            text-align: left;
-            color: black;
-        }
-        
-        .print-table td {
-            border: 1pt solid black;
-            padding: 6pt 8pt;
-            vertical-align: top;
-            font-size: 12pt;
-            color: black;
-        }
+        .print-table td { border: none; padding: 4pt; vertical-align: top; font-size: 10pt; color: black; }
         
         .print-table .col-checkbox {
             width: 30px;
@@ -2221,22 +2171,10 @@ Phát triển bởi Shopping Manager Team`;
     </style>
 </head>
 <body>
-    <div class="print-instructions">
-        <h2>📄 Hướng dẫn in ngang (A4 Landscape)</h2>
-        <ol>
-            <li>Nhấn nút "In ngay" bên dưới</li>
-            <li>Trong cửa sổ in, chọn <strong>"Landscape" (Ngang)</strong> thay vì "Portrait" (Dọc)</li>
-            <li>Kiểm tra "Paper size: A4" để đảm bảo khổ giấy đúng</li>
-            <li>Nhấn "Print" để in</li>
-        </ol>
-        <button class="print-button" onclick="window.print()">🖨️ In ngay</button>
-    </div>
+    <!-- Instructions removed in exported HTML to save space -->
     
     <div class="print-container">
-        <div class="print-header">
-            <div class="print-title">DANH SÁCH MUA SẮM</div>
-            <div class="print-info">${hotelName} - ${formattedDate}</div>
-        </div>
+        <div class="print-header"><div class="print-info">${hotelName} - ${formattedDate}</div></div>
         
         <div class="print-sections">
             ${sectionsHTML}
@@ -2288,22 +2226,24 @@ Phát triển bởi Shopping Manager Team`;
     createPrintPreview(itemsBySection, hotelName, formattedDate) {
         const sectionInfo = {
             thit: { title: 'THỊT & GIA CẦM', icon: '' },
-            rau: { title: 'RAU CỦ QUẢ', icon: '' },
-            dokho: { title: 'ĐỒ KHÔ & GIA VỊ', icon: '' }
+            rau: { title: 'RAU CỦ', icon: '' },
+            dokho: { title: 'ĐỒ KHÔ & GIA VỊ', icon: '' },
+            hoaqua: { title: 'HOA QUẢ', icon: '' }
         };
 
         let sectionsHTML = '';
         Object.entries(itemsBySection).forEach(([sectionKey, items]) => {
             let itemsHTML = '';
             
-            if (items.length === 0) {
+            const limited = items.slice(0, 20);
+            if (limited.length === 0) {
                 itemsHTML = `
                     <tr>
                         <td colspan="3" class="print-empty">Không có sản phẩm</td>
                     </tr>
                 `;
             } else {
-                items.forEach(item => {
+                limited.forEach(item => {
                     itemsHTML += `
                         <tr>
                             <td class="col-checkbox">☐</td>
@@ -2328,12 +2268,8 @@ Phát triển bởi Shopping Manager Team`;
 
         return `
             <div class="print-container">
-                <div class="print-header">
-                    <div class="print-title">DANH SÁCH MUA SẮM</div>
-                    <div class="print-info">${hotelName} - ${formattedDate}</div>
-                </div>
-                
-                <div class="print-sections">
+                <div class="print-header"><div class="print-info">${hotelName} - ${formattedDate}</div></div>
+                <div class="print-sections print-sections-compact">
                     ${sectionsHTML}
                 </div>
             </div>
