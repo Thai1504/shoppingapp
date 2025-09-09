@@ -38,6 +38,9 @@ class ShoppingApp {
         try {
             this.showLoading(true);
             
+            // Initialize DataManager first
+            DataManager.init();
+            
             // Cache DOM elements
             this.cacheElements();
             
@@ -75,10 +78,8 @@ class ShoppingApp {
 
         // Form elements
         this.elements.selectedDate = document.getElementById('selectedDate');
-        this.elements.todayBtn = document.getElementById('todayBtn');
         this.elements.printBtn = document.getElementById('printBtn');
         this.elements.exportBtn = document.getElementById('exportBtn');
-        this.elements.cleanupBtn = document.getElementById('cleanupBtn');
         this.elements.itemForm = document.getElementById('itemForm');
         this.elements.itemName = document.getElementById('itemName');
         this.elements.itemPool = document.getElementById('itemPool');
@@ -106,6 +107,12 @@ class ShoppingApp {
 
         // Action buttons
         this.elements.addItemBtn = document.getElementById('addItemBtn');
+        this.elements.fixedFooter = document.getElementById('fixedFooter');
+        this.elements.printBtnFooter = document.getElementById('printBtnFooter');
+        this.elements.exportBtnFooter = document.getElementById('exportBtnFooter');
+        this.elements.footerItemCount = document.getElementById('footerItemCount');
+        this.elements.footerTotalBuy = document.getElementById('footerTotalBuy');
+        this.elements.footerTotalSell = document.getElementById('footerTotalSell');
         
         // Modal elements
         this.elements.addItemModal = document.getElementById('addItemModal');
@@ -161,15 +168,6 @@ class ShoppingApp {
             );
         }
 
-        if (this.elements.todayBtn) {
-            this.cleanupFunctions.push(
-                Utils.addEventListenerWithCleanup(
-                    this.elements.todayBtn, 
-                    'click', 
-                    () => this.setToday()
-                )
-            );
-        }
 
         if (this.elements.printBtn) {
             this.cleanupFunctions.push(
@@ -238,15 +236,6 @@ class ShoppingApp {
             );
         }
 
-        if (this.elements.cleanupBtn) {
-            this.cleanupFunctions.push(
-                Utils.addEventListenerWithCleanup(
-                    this.elements.cleanupBtn, 
-                    'click', 
-                    () => this.openCleanupModal()
-                )
-            );
-        }
 
         // Hotel selection with clearing logic
         if (this.elements.hotelSelect) {
@@ -334,6 +323,28 @@ class ShoppingApp {
                     this.elements.addItemBtn, 
                     'click', 
                     () => this.openAddItemModal()
+                )
+            );
+        }
+
+        // Footer print button
+        if (this.elements.printBtnFooter) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.printBtnFooter, 
+                    'click', 
+                    () => this.showPrintPreview()
+                )
+            );
+        }
+
+        // Footer export button
+        if (this.elements.exportBtnFooter) {
+            this.cleanupFunctions.push(
+                Utils.addEventListenerWithCleanup(
+                    this.elements.exportBtnFooter, 
+                    'click', 
+                    () => this.exportShoppingList()
                 )
             );
         }
@@ -806,17 +817,33 @@ class ShoppingApp {
         }
 
         try {
+            console.log('Loading items for:', {
+                hotel: this.currentState.selectedHotel,
+                date: this.currentState.selectedDate,
+                section: this.currentState.selectedSection
+            });
+
             const items = DataManager.getItems(
                 this.currentState.selectedHotel,
                 this.currentState.selectedDate,
                 this.currentState.selectedSection
             );
 
+            console.log('Loaded items:', items);
             this.currentState.currentItems = items;
             this.filterAndRenderItems();
         } catch (error) {
             console.error('Error loading items:', error);
-            Utils.showToast('Lỗi khi tải danh sách sản phẩm', 'error');
+            console.error('Error details:', {
+                message: error.message,
+                stack: error.stack,
+                state: this.currentState
+            });
+            Utils.showToast(`Lỗi khi tải danh sách sản phẩm: ${error.message}`, 'error');
+            
+            // Fallback to empty array
+            this.currentState.currentItems = [];
+            this.renderItems([]);
         }
     }
 
@@ -862,7 +889,13 @@ class ShoppingApp {
         });
 
         // Update totals
+        console.log('Updating totals with items:', items);
         this.updateTotals(items);
+        
+        // Force update footer visibility
+        if (items.length > 0 && footer) {
+            footer.style.display = 'table-footer-group';
+        }
     }
 
     /**
@@ -890,10 +923,24 @@ class ShoppingApp {
             `Chưa có giá`;
 
         row.innerHTML = `
-            <td class="col-checkbox">
-                <input type="checkbox" class="item-checkbox" 
-                       ${item.isDone ? 'checked' : ''} 
-                       onchange="app.toggleItemCompletion('${item.id}')">
+            <td class="col-controls">
+                <div class="controls-container">
+                    <input type="checkbox" class="item-checkbox" 
+                           ${item.isDone ? 'checked' : ''} 
+                           onchange="app.toggleItemCompletion('${item.id}')">
+                    <div class="control-buttons">
+                        <button class="btn-icon-only btn-edit-icon" 
+                                onclick="app.openEditModal('${item.id}')"
+                                title="Chỉnh sửa">
+                            ✏️
+                        </button>
+                        <button class="btn-icon-only btn-delete-icon" 
+                                onclick="app.deleteItem('${item.id}')"
+                                title="Xóa">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
             </td>
             <td class="col-name-unit">
                 <div class="item-name">${Utils.sanitizeHtml(item.name)}</div>
@@ -918,18 +965,6 @@ class ShoppingApp {
             </td>
             <td class="col-total">
                 <div class="total-calculation">${sellCalculation}</div>
-            </td>
-            <td class="col-actions">
-                <button class="btn btn-secondary btn-sm" 
-                        onclick="app.openEditModal('${item.id}')"
-                        title="Edit product">
-                    Edit
-                </button>
-                <button class="btn btn-danger btn-sm" 
-                        onclick="app.deleteItem('${item.id}')"
-                        title="Delete product">
-                    Delete
-                </button>
             </td>
         `;
 
@@ -1115,17 +1150,49 @@ class ShoppingApp {
      */
     updateTotals(items) {
         const stats = Utils.calculateStats(items);
+        
+        // Fallback formatting function in case Utils.formatThousandsVND is unavailable
+        const formatThousandsVND = (amount) => {
+            if (amount == null || isNaN(amount)) return '0 k₫';
+            return Math.round(amount) + ' k₫';
+        };
 
         if (this.elements.totalBuyAmount) {
-            this.elements.totalBuyAmount.textContent = stats.totalBuyAmount;
+            const buyAmountText = typeof Utils.formatThousandsVND === 'function' 
+                ? Utils.formatThousandsVND(stats.totalBuyAmount)
+                : formatThousandsVND(stats.totalBuyAmount);
+            this.elements.totalBuyAmount.textContent = buyAmountText;
         }
 
         if (this.elements.totalSellAmount) {
-            this.elements.totalSellAmount.textContent = stats.totalSellAmount;
+            const sellAmountText = typeof Utils.formatThousandsVND === 'function' 
+                ? Utils.formatThousandsVND(stats.totalSellAmount)
+                : formatThousandsVND(stats.totalSellAmount);
+            this.elements.totalSellAmount.textContent = sellAmountText;
         }
 
         if (this.elements.itemCount) {
-            this.elements.itemCount.textContent = `${stats.totalItems} sản phẩm`;
+            const itemCountText = `${stats.totalItems} sản phẩm`;
+            this.elements.itemCount.textContent = itemCountText;
+        }
+
+        // Update footer totals
+        if (this.elements.footerItemCount) {
+            this.elements.footerItemCount.textContent = `${stats.totalItems} sản phẩm`;
+        }
+
+        if (this.elements.footerTotalBuy) {
+            const footerBuyText = typeof Utils.formatThousandsVND === 'function' 
+                ? Utils.formatThousandsVND(stats.totalBuyAmount)
+                : formatThousandsVND(stats.totalBuyAmount);
+            this.elements.footerTotalBuy.textContent = footerBuyText;
+        }
+
+        if (this.elements.footerTotalSell) {
+            const footerSellText = typeof Utils.formatThousandsVND === 'function' 
+                ? Utils.formatThousandsVND(stats.totalSellAmount)
+                : formatThousandsVND(stats.totalSellAmount);
+            this.elements.footerTotalSell.textContent = footerSellText;
         }
     }
 
@@ -1168,6 +1235,22 @@ class ShoppingApp {
         if (this.elements.exportBtn) {
             const hasItems = canShowContent && this.currentState.currentItems && this.currentState.currentItems.length > 0;
             this.elements.exportBtn.style.display = hasItems ? 'inline-flex' : 'none';
+        }
+
+        // Show/hide fixed footer
+        if (this.elements.fixedFooter) {
+            this.elements.fixedFooter.style.display = canShowContent ? 'block' : 'none';
+        }
+
+        // Show/hide footer print and export buttons based on whether there are items
+        if (this.elements.printBtnFooter) {
+            const hasItems = canShowContent && this.currentState.currentItems && this.currentState.currentItems.length > 0;
+            this.elements.printBtnFooter.style.display = hasItems ? 'inline-flex' : 'none';
+        }
+
+        if (this.elements.exportBtnFooter) {
+            const hasItems = canShowContent && this.currentState.currentItems && this.currentState.currentItems.length > 0;
+            this.elements.exportBtnFooter.style.display = hasItems ? 'inline-flex' : 'none';
         }
     }
 
@@ -1753,31 +1836,48 @@ Phát triển bởi Shopping Manager Team`;
             // Section title
             const title = document.createElement('div');
             title.className = 'print-section-title';
-            title.innerHTML = `${sectionInfo[sectionKey].icon} ${sectionInfo[sectionKey].title}`;
+            title.innerHTML = `${sectionInfo[sectionKey].title}`;
 
-            // Items list
-            const itemsList = document.createElement('ul');
-            itemsList.className = 'print-items';
+            // Items table
+            const table = document.createElement('table');
+            table.className = 'print-table';
 
+            // Table header
+            const thead = document.createElement('thead');
+            thead.innerHTML = `
+                <tr>
+                    <th class="col-checkbox">☐</th>
+                    <th class="col-name">Sản phẩm</th>
+                    <th class="col-quantity">Số lượng</th>
+                </tr>
+            `;
+            table.appendChild(thead);
+
+            // Table body
+            const tbody = document.createElement('tbody');
+            
             if (items.length === 0) {
-                const emptyItem = document.createElement('li');
-                emptyItem.className = 'print-empty';
-                emptyItem.textContent = 'Không có sản phẩm';
-                itemsList.appendChild(emptyItem);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="print-empty">Không có sản phẩm</td>
+                    </tr>
+                `;
             } else {
                 items.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.className = 'print-item';
-                    listItem.innerHTML = `
-                        <span class="print-item-name">${Utils.sanitizeHtml(item.name)}</span>
-                        <span class="print-item-quantity">${item.quantity} ${item.unit}</span>
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="col-checkbox">☐</td>
+                        <td class="col-name">${Utils.sanitizeHtml(item.name)}</td>
+                        <td class="col-quantity">${item.quantity} ${item.unit}</td>
                     `;
-                    itemsList.appendChild(listItem);
+                    tbody.appendChild(row);
                 });
             }
+            
+            table.appendChild(tbody);
 
             section.appendChild(title);
-            section.appendChild(itemsList);
+            section.appendChild(table);
             sectionsContainer.appendChild(section);
         });
 
@@ -1860,14 +1960,19 @@ Phát triển bởi Shopping Manager Team`;
             let itemsHTML = '';
             
             if (items.length === 0) {
-                itemsHTML = '<li class="print-empty">Không có sản phẩm</li>';
+                itemsHTML = `
+                    <tr>
+                        <td colspan="3" class="print-empty">Không có sản phẩm</td>
+                    </tr>
+                `;
             } else {
                 items.forEach(item => {
                     itemsHTML += `
-                        <li class="print-item">
-                            <span class="print-item-name">${Utils.sanitizeHtml(item.name)}</span>
-                            <span class="print-item-quantity">${item.quantity} ${item.unit}</span>
-                        </li>
+                        <tr>
+                            <td class="col-checkbox">☐</td>
+                            <td class="col-name">${Utils.sanitizeHtml(item.name)}</td>
+                            <td class="col-quantity">${item.quantity} ${item.unit}</td>
+                        </tr>
                     `;
                 });
             }
@@ -1875,9 +1980,11 @@ Phát triển bởi Shopping Manager Team`;
             sectionsHTML += `
                 <div class="print-section">
                     <div class="print-section-title">${sectionInfo[sectionKey].title}</div>
-                    <ul class="print-items">
-                        ${itemsHTML}
-                    </ul>
+                    <table class="print-table">
+                        <tbody>
+                            ${itemsHTML}
+                        </tbody>
+                    </table>
                 </div>
             `;
         });
@@ -2032,50 +2139,47 @@ Phát triển bởi Shopping Manager Team`;
             letter-spacing: 0.5pt;
         }
         
-        .print-items {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12pt;
+            height: calc(100% - 50px);
         }
         
-        .print-item {
-            display: flex;
-            align-items: flex-start;
-            padding: 8pt 0;
-            border-bottom: 1pt solid #ddd;
-            font-size: 16pt;
-            line-height: 1.4;
-            page-break-inside: avoid;
-        }
-        
-        .print-item:last-child {
-            border-bottom: none;
-        }
-        
-        .print-item::before {
-            content: "☐ ";
-            font-size: 18pt;
-            font-weight: bold;
-            margin-right: 8pt;
-            color: #333;
-            flex-shrink: 0;
-        }
-        
-        .print-item-name {
-            flex: 1;
-            font-weight: 600;
-            margin-right: 10pt;
-            color: #222;
-        }
-        
-        .print-item-quantity {
-            font-weight: bold;
-            color: #000;
-            font-size: 16pt;
-            white-space: nowrap;
+        .print-table th {
             background: #f0f0f0;
-            padding: 2pt 6pt;
-            border-radius: 2pt;
+            border: 1pt solid black;
+            padding: 6pt;
+            font-weight: bold;
+            font-size: 11pt;
+            text-align: left;
+            color: black;
+        }
+        
+        .print-table td {
+            border: 1pt solid black;
+            padding: 6pt 8pt;
+            vertical-align: top;
+            font-size: 12pt;
+            color: black;
+        }
+        
+        .print-table .col-checkbox {
+            width: 30px;
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+        }
+        
+        .print-table .col-name {
+            width: 60%;
+            font-weight: 600;
+        }
+        
+        .print-table .col-quantity {
+            width: 30%;
+            text-align: center;
+            font-weight: bold;
             border: 1pt solid #ccc;
         }
         
@@ -2193,14 +2297,19 @@ Phát triển bởi Shopping Manager Team`;
             let itemsHTML = '';
             
             if (items.length === 0) {
-                itemsHTML = '<li class="print-empty">Không có sản phẩm</li>';
+                itemsHTML = `
+                    <tr>
+                        <td colspan="3" class="print-empty">Không có sản phẩm</td>
+                    </tr>
+                `;
             } else {
                 items.forEach(item => {
                     itemsHTML += `
-                        <li class="print-item">
-                            <span class="print-item-name">${Utils.sanitizeHtml(item.name)}</span>
-                            <span class="print-item-quantity">${item.quantity} ${item.unit}</span>
-                        </li>
+                        <tr>
+                            <td class="col-checkbox">☐</td>
+                            <td class="col-name">${Utils.sanitizeHtml(item.name)}</td>
+                            <td class="col-quantity">${item.quantity} ${item.unit}</td>
+                        </tr>
                     `;
                 });
             }
@@ -2208,9 +2317,11 @@ Phát triển bởi Shopping Manager Team`;
             sectionsHTML += `
                 <div class="print-section">
                     <div class="print-section-title">${sectionInfo[sectionKey].title}</div>
-                    <ul class="print-items">
-                        ${itemsHTML}
-                    </ul>
+                    <table class="print-table">
+                        <tbody>
+                            ${itemsHTML}
+                        </tbody>
+                    </table>
                 </div>
             `;
         });

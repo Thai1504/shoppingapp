@@ -73,7 +73,12 @@ const DataManager = {
             return this.validateAndFixDataStructure(parsed);
         } catch (error) {
             console.error('Error loading data:', error);
-            Utils.showToast('Lỗi khi tải dữ liệu', 'error');
+            console.error('Corrupted data:', localStorage.getItem(this.STORAGE_KEY));
+            
+            // Clear corrupted data
+            localStorage.removeItem(this.STORAGE_KEY);
+            
+            Utils.showToast('Dữ liệu bị lỗi, đã khôi phục về mặc định', 'warning');
             return this.getEmptyDataStructure();
         }
     },

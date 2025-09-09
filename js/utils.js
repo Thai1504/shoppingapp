@@ -37,6 +37,11 @@ const Utils = {
         return thousands.toString();
     },
 
+    formatThousandsVND(amount) {
+        if (amount == null || isNaN(amount)) return '0 k₫';
+        return Math.round(amount) + ' k₫';
+    },
+
     /**
      * Format date as Vietnamese format
      * @param {string|Date} date - Date to format

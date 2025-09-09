@@ -17,27 +17,11 @@
 
     <div class="container">
 
-        <!-- Professional Navigation -->
+        <!-- Compact Navigation -->
         <div class="sticky-nav" id="stickyNav">
-            <!-- Date Selection -->
-            <div class="nav-row">
+            <!-- Row 1: Date and Hotel -->
+            <div class="nav-row nav-row-compact">
                 <input type="date" id="selectedDate" class="nav-input" required>
-                <div class="mobile-button-group">
-                    <button id="todayBtn" class="btn btn-today">Hôm nay</button>
-                    <button id="printBtn" class="btn btn-print" title="In danh sách mua sắm" style="display: none;">
-                        <span class="mobile-hide">In danh sách</span>
-                        <span class="mobile-show">In</span>
-                    </button>
-                    <button id="exportBtn" class="btn btn-export" title="Xuất file HTML" style="display: none;">
-                        <span class="mobile-hide">Xuất file</span>
-                        <span class="mobile-show">Xuất</span>
-                    </button>
-                    <button id="cleanupBtn" class="btn btn-icon" title="Dọn dẹp dữ liệu">⚙</button>
-                </div>
-            </div>
-
-            <!-- Hotel Selection -->
-            <div class="nav-row">
                 <select id="hotelSelect" class="nav-select">
                     <option value="">-- Chọn khách sạn --</option>
                     <option value="36LS">Khách sạn 36LS</option>
@@ -47,8 +31,8 @@
                 </select>
             </div>
 
-            <!-- Section Tabs -->
-            <div class="nav-row">
+            <!-- Row 2: Categories and Actions -->
+            <div class="nav-row nav-row-compact">
                 <div class="section-tabs">
                     <button class="section-tab" data-section="thit">
                         Thịt
@@ -81,13 +65,12 @@
                 <table class="items-table" id="itemsTable">
                     <thead>
                         <tr>
-                            <th class="col-checkbox">✓</th>
+                            <th class="col-controls">✓</th>
                             <th class="col-name-unit">Sản phẩm</th>
                             <th class="col-price edit-mode-only" style="display: none;">Giá mua (k₫)</th>
                             <th class="col-price edit-mode-only" style="display: none;">Giá bán (k₫)</th>
                             <th class="col-total">Tổng mua (k₫)</th>
                             <th class="col-total">Tổng bán (k₫)</th>
-                            <th class="col-actions">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="itemsTableBody">
@@ -108,13 +91,10 @@
                                 <!-- Price columns space -->
                             </td>
                             <td class="totals-buy">
-                                <strong id="totalBuyAmount">0₫</strong>
+                                <strong id="totalBuyAmount">0 k₫</strong>
                             </td>
                             <td class="totals-sell">
-                                <strong id="totalSellAmount">0₫</strong>
-                            </td>
-                            <td class="totals-actions">
-                                <!-- Actions space -->
+                                <strong id="totalSellAmount">0 k₫</strong>
                             </td>
                         </tr>
                     </tfoot>
@@ -131,10 +111,27 @@
     </div>
 
 
-    <!-- Add Item Button -->
-    <button class="add-item-btn" id="addItemBtn" style="display: none;" title="Thêm sản phẩm">
-        ➕ Thêm sản phẩm
-    </button>
+    <!-- Fixed Footer -->
+    <div class="fixed-footer" id="fixedFooter" style="display: none;">
+        <div class="footer-content">
+            <div class="footer-totals">
+                <span id="footerItemCount">0 sản phẩm</span>
+                <span id="footerTotalBuy">0 k₫</span>
+                <span id="footerTotalSell">0 k₫</span>
+            </div>
+            <div class="footer-actions">
+                <button id="addItemBtn" class="btn btn-primary" title="Thêm sản phẩm">
+                    ➕ Thêm sản phẩm
+                </button>
+                <button id="printBtnFooter" class="btn btn-print" title="In danh sách" style="display: none;">
+                    🖨️ In
+                </button>
+                <button id="exportBtnFooter" class="btn btn-export" title="Xuất file" style="display: none;">
+                    📄 Xuất
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Add Item Modal -->
     <div class="modal add-item-modal" id="addItemModal">
