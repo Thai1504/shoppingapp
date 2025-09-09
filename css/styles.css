@@ -1115,9 +1115,9 @@ body {
 }
 
 .print-preview-iframe .print-info {
-    font-size: var(--font-size-base);
+    font-size: 28px;
     color: var(--text-secondary);
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-bold);
 }
 
 .print-preview-iframe .print-sections {
@@ -1154,23 +1154,25 @@ body {
     width: 100%;
     border-collapse: collapse;
     height: calc(100% - 60px);
-    font-size: var(--font-size-xs);
+    font-size: 16px;
 }
 
 .print-preview-iframe .print-table th { display: none; }
 
 .print-preview-iframe .print-table td {
     border: none;
-    padding: 2px 4px;
+    padding: 3px 6px;
     vertical-align: top;
-    font-size: var(--font-size-xs);
+    font-size: 16px;
+    line-height: 1.1;
 }
 
 .print-preview-iframe .print-table .col-checkbox {
-    width: 20px;
+    width: 28px;
     text-align: center;
     font-weight: var(--font-weight-bold);
     color: var(--market-green-600);
+    font-size: 22px;
 }
 
 .print-preview-iframe .print-table .col-name {
@@ -1467,7 +1469,7 @@ body {
     .print-title { display: none !important; }
 
     .print-info {
-        font-size: 12pt !important;
+        font-size: 24pt !important;
         color: black !important;
         font-weight: bold !important;
     }
@@ -1509,7 +1511,7 @@ body {
     .print-table {
         width: 100% !important;
         border-collapse: collapse !important;
-        font-size: 10pt !important;
+        font-size: 12pt !important;
         height: auto !important;
     }
 
@@ -1523,15 +1525,15 @@ body {
 
     .print-table td {
         border: none !important;
-        padding: 4px !important;
+        padding: 5px !important;
         vertical-align: top !important;
-        font-size: 10pt !important;
+        font-size: 12pt !important;
     }
 
     .print-table .col-checkbox {
-        width: 30px !important;
+        width: 34px !important;
         text-align: center !important;
-        font-size: 14pt !important;
+        font-size: 22pt !important;
     }
 
     .print-table .col-name {

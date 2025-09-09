@@ -1919,6 +1919,10 @@ Phát triển bởi Shopping Manager Team`;
         }
 
         try {
+            // Ask user which export type
+            const choice = (window.prompt('Xuất loại nào? Nhập "mua" (danh sách mua) hoặc "bao gia" (báo giá).', 'mua') || '').trim().toLowerCase();
+            if (!choice) return;
+
             // Group items by section
             const itemsBySection = this.groupItemsBySection();
 
@@ -1926,16 +1930,23 @@ Phát triển bởi Shopping Manager Team`;
             const hotelName = this.getHotelDisplayName(this.currentState.selectedHotel);
             const formattedDate = Utils.formatDateForDisplay(this.currentState.selectedDate);
 
-            // Create HTML content
-            const htmlContent = this.createPrintableHTML(itemsBySection, hotelName, formattedDate);
+            let htmlContent = '';
+            let filename = '';
+
+            if (choice === 'bao gia' || choice === 'baogia' || choice === 'bao-gia' || choice === 'báo giá') {
+                htmlContent = this.createQuotationHTML(itemsBySection, hotelName, formattedDate);
+                filename = `bao-gia-${this.currentState.selectedHotel}-${this.currentState.selectedDate}.html`;
+            } else {
+                htmlContent = this.createPrintableHTML(itemsBySection, hotelName, formattedDate);
+                filename = `danh-sach-mua-sam-${this.currentState.selectedHotel}-${this.currentState.selectedDate}.html`;
+            }
 
             // Create and download file
             const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            
             const link = document.createElement('a');
             link.href = url;
-            link.download = `danh-sach-mua-sam-${this.currentState.selectedHotel}-${this.currentState.selectedDate}.html`;
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -2034,8 +2045,8 @@ Phát triển bởi Shopping Manager Team`;
         
         body {
             font-family: 'Times New Roman', Arial, sans-serif;
-            font-size: 16pt;
-            line-height: 1.5;
+            font-size: 22pt;
+            line-height: 1.15;
             color: black;
             background: white;
             padding: 20px;
@@ -2098,7 +2109,7 @@ Phát triển bởi Shopping Manager Team`;
         }
         
         .print-header { text-align: left; margin-bottom: 8pt; padding-bottom: 6pt; border-bottom: 1pt solid #333; }
-        .print-info { font-size: 12pt; color: #000; font-weight: 600; }
+        .print-info { font-size: 24pt; color: #000; font-weight: 700; }
         
         .print-sections { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10pt; margin-top: 8pt; }
         
@@ -2108,29 +2119,30 @@ Phát triển bởi Shopping Manager Team`;
         
         .print-section-title { font-size: 12pt; font-weight: 700; text-align: center; margin-bottom: 6pt; padding: 4pt; background: #eee; color: #000; border-radius: 2pt; letter-spacing: 0.3pt; }
         
-        .print-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+        .print-table { width: 100%; border-collapse: collapse; font-size: 12pt; }
         
         .print-table th { display: none; }
         
-        .print-table td { border: none; padding: 4pt; vertical-align: top; font-size: 10pt; color: black; }
+        .print-table td { border: none; padding: 4pt 6pt; vertical-align: top; font-size: 20pt; color: black; line-height: 1.05; }
         
         .print-table .col-checkbox {
             width: 30px;
             text-align: center;
-            font-size: 16pt;
+            font-size: 28pt;
             font-weight: bold;
         }
         
         .print-table .col-name {
             width: 60%;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 20pt;
         }
         
         .print-table .col-quantity {
             width: 30%;
             text-align: center;
-            font-weight: bold;
-            border: 1pt solid #ccc;
+            font-weight: 700;
+            font-size: 20pt;
         }
         
         .print-empty {
@@ -2182,6 +2194,125 @@ Phát triển bởi Shopping Manager Team`;
     </div>
 </body>
 </html>`;
+    }
+
+    /**
+     * Create quotation HTML in portrait mode with unit price and totals
+     */
+    createQuotationHTML(itemsBySection, hotelName, formattedDate) {
+        // Flatten items and compute totals
+        const sectionsOrder = ['thit', 'rau', 'dokho', 'hoaqua'];
+        const sectionTitle = { thit: 'Thịt & Gia Cầm', rau: 'Rau Củ', dokho: 'Đồ Khô & Gia Vị', hoaqua: 'Hoa Quả' };
+
+        const rows = [];
+        let grandTotal = 0;
+        sectionsOrder.forEach(sec => {
+            const items = itemsBySection[sec] || [];
+            items.forEach(item => {
+                const unitPrice = Utils.parseNumber(item.sellPrice); // in thousands (k₫)
+                const lineTotal = Utils.parseNumber(item.quantity) * unitPrice;
+                grandTotal += lineTotal;
+                rows.push({
+                    section: sectionTitle[sec],
+                    name: item.name,
+                    qty: item.quantity,
+                    unit: item.unit,
+                    unitPrice,
+                    lineTotal
+                });
+            });
+        });
+
+        const rowsHTML = rows.length === 0 ? `
+            <tr><td colspan="6" class="empty">Không có sản phẩm</td></tr>
+        ` : rows.map(r => `
+            <tr>
+                <td class="col-section">${Utils.sanitizeHtml(r.section)}</td>
+                <td class="col-name">${Utils.sanitizeHtml(r.name)}</td>
+                <td class="col-qty num">${r.qty}</td>
+                <td class="col-unit">${r.unit}</td>
+                <td class="col-unit-price num">${Utils.formatThousandsVND(r.unitPrice)}</td>
+                <td class="col-line-total num">${Utils.formatThousandsVND(r.lineTotal)}</td>
+            </tr>
+        `).join('');
+
+        return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Giá - ${hotelName} - ${formattedDate}</title>
+    <style>
+        @page { size: A4 portrait; margin: 12mm 10mm; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Times New Roman', Arial, sans-serif; color: #000; margin: 0; padding: 0; font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"; font-feature-settings: "tnum"; }
+        .header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #000; padding: 8pt 0; margin-bottom: 8pt; }
+        .title { font-size: 20pt; font-weight: 700; }
+        .sub { font-size: 12pt; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; border-spacing: 0; font-size: 12pt; table-layout: fixed; }
+        colgroup col.col-section { width: 10%; }
+        colgroup col.col-name { width: 42%; }
+        colgroup col.col-qty { width: 6%; }
+        colgroup col.col-unit { width: 8%; }
+        colgroup col.col-unit-price { width: 14%; }
+        colgroup col.col-line-total { width: 20%; }
+        thead th { text-align: left; border-bottom: 1px solid #000; padding: 6pt 4pt; font-weight: 700; white-space: nowrap; }
+        td { padding: 6pt 4pt; vertical-align: top; overflow: hidden; text-overflow: ellipsis; }
+        th, td { border-right: 1px solid #ddd; }
+        th:last-child, td:last-child { border-right: none; }
+        .col-qty, .col-unit-price, .col-line-total { white-space: nowrap; }
+        .num { text-align: right; font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"; font-feature-settings: "tnum"; font-family: "Courier New", monospace; }
+        .col-qty { text-align: right; }
+        .col-unit { text-align: center; }
+        .col-unit-price, .col-line-total { text-align: right; }
+        .col-name { font-weight: 700; }
+        .col-line-total { font-weight: 700; }
+        /* Tighten padding for numeric columns to align numbers with separators */
+        td.col-qty, td.col-unit-price, td.col-line-total { padding-right: 0; }
+        th.col-qty, th.col-unit-price, th.col-line-total { padding-right: 0; text-align: right; }
+        /* Pull text slightly away from left separator for the first two columns */
+        td.col-section, td.col-name { padding-left: 2pt; }
+        th.col-section, th.col-name { padding-left: 2pt; }
+        tfoot td { border-top: 1px solid #000; font-weight: 800; padding-top: 8pt; }
+        .empty { text-align: center; padding: 20pt 0; color: #666; font-style: italic; }
+    </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="title">BÁO GIÁ</div>
+            <div class="sub">${hotelName} - ${formattedDate}</div>
+        </div>
+        <table>
+            <colgroup>
+                <col class="col-section" />
+                <col class="col-name" />
+                <col class="col-qty" />
+                <col class="col-unit" />
+                <col class="col-unit-price" />
+                <col class="col-line-total" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="col-section">Danh mục</th>
+                    <th class="col-name">Sản phẩm</th>
+                    <th class="col-qty" style="text-align:right;">SL</th>
+                    <th class="col-unit" style="text-align:center;">ĐV</th>
+                    <th class="col-unit-price" style="text-align:right;">Đơn giá (k₫)</th>
+                    <th class="col-line-total" style="text-align:right;">Thành tiền (k₫)</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rowsHTML}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5" style="text-align:right;">Tổng cộng:</td>
+                    <td style="text-align:right;">${Utils.formatThousandsVND(grandTotal)}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </body>
+    </html>`;
     }
 
     /**
